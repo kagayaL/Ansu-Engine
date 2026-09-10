@@ -1,1 +1,1 @@
-# Project by serovaviktoria95-ui, nata-medvedeva, kagayaL
+# Project by nata-medvedeva, kagayaL
