@@ -1,1 +1,1 @@
-# Project by nata-medvedeva, kagayaL
+# Empty
