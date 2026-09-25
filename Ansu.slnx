@@ -3,6 +3,9 @@
     <Project Path="src/Core/Core.csproj" />
     <Project Path="src/Editor/Editor.csproj" />
     <Project Path="src/Render/Render.csproj" />
-    <Project Path="src/Runtime/Runtime.csproj" Id="5133cee6-9088-4f0d-88a8-379e265e02fd" />
+    <Project Path="src/RunTime/Runtime.csproj" Id="5133cee6-9088-4f0d-88a8-379e265e02fd" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/MyGame/MyGame.csproj" />
   </Folder>
 </Solution>
