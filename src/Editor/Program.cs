@@ -1,2 +1,4 @@
-﻿using var game = new EditorApp();
+﻿using PacEngine.Editor;
+
+using var game = new EditorApp();
 game.Run();

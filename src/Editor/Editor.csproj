@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -9,9 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5.1" />
-    <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
-    <PackageReference Include="MonoGame.ImGuiNet" Version="1.0.5" />
-    <!-- MonoGame.ImGuiNet как PackageReference больше не нужен — заменяем Reference ниже -->
+    <PackageReference Include="ImGui.NET" Version="1.89.7.1" />
   </ItemGroup>
 
   <ItemGroup>
