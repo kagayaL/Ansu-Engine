@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ImGuiNET;
 using MonoGame.ImGuiNet;
 
+
 // Game - готовая заготовка от MonoGame, позволяет
 // открывать окно, рисовать кадры 60/с 
 public class EditorApp : Game
@@ -21,6 +22,17 @@ public class EditorApp : Game
         
     }
 
+    protected override void Initialize()
+    {
+        _imgui.LoadContent();
+        base.Initialize(); // вызов метода класса 
+    }
+
+    protected override void Update(GameTime gameTime)
+    {
+        _imgui.Update(gameTime);
+        base.Update(gameTime);
+    }
     // Метод, который MonoGame вызывает сам, чтобы нарисовать кадр (60/с)
     protected override void Draw(GameTime gameTime)
     {
