@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ImGuiNET;
 using MonoGame.ImGuiNet;
 
-namespace PacEngine.Editor;
+namespace Editor;
 
 // Game - готовая заготовка от MonoGame, позволяет
 // открывать окно, рисовать кадры 60/с 
@@ -36,7 +36,7 @@ public class EditorApp : Game
     {
         _imgui.BeforeLayout(gameTime);
 
-        GraphicsDevice.Clear(new Color(255, 183, 255));
+        GraphicsDevice.Clear(new Color(15, 15, 15));
 
         ImGui.Begin("Editor");
         ImGui.End();
