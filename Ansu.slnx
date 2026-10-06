@@ -8,4 +8,5 @@
   <Folder Name="/samples/">
     <Project Path="samples/MyGame/MyGame.csproj" />
   </Folder>
+  <Project Path="src/Tests/Tests.csproj" />
 </Solution>
