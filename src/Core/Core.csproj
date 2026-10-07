@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="ECS\Query\" />
+    <Folder Include="Scene\Serialization\" />
+  </ItemGroup>
+
 </Project>
