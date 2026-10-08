@@ -21,9 +21,4 @@
 		<ProjectReference Include="..\RunTime\Runtime.csproj" />
 	</ItemGroup>
 
-	<!-- Копируем .tmj в подпапку Data рядом с тестовой сборкой -->
-	<ItemGroup>
-		<None Include="RunTime\Data\*.tmj" Link="Data\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
-
 </Project>

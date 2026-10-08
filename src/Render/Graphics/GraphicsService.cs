@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Render.Graphics;
 
 public sealed class GraphicsService
-{
+{   
     public GraphicsDevice Device { get; }
     public WindowSettings Settings { get; }
     public Renderer Renderer { get; }

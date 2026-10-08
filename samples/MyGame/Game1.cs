@@ -1,13 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Render.Graphics;   // ← namespace твоего Renderer
 
 namespace MyGame;
 
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+    private Renderer _renderer;
+    private Texture2D _testTexture, _secondTexture;
 
     public Game1()
     {
@@ -18,33 +20,39 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
-
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
+        _renderer = new Renderer(GraphicsDevice);
 
-        // TODO: use this.Content to load your game content here
+        // Создаём текстуру 64×64, заливаем красным
+        _testTexture = new Texture2D(GraphicsDevice, 64, 64);
+        _secondTexture = new Texture2D(GraphicsDevice, 64, 64);
+        Color[] data = new Color[64 * 64];
+        for (int i = 0; i < data.Length; i++)
+            data[i] = Color.Red;
+        _secondTexture.SetData(data);
+        _testTexture = Texture2D.FromFile(GraphicsDevice, "C:\\Users\\Denis\\Desktop\\FillerName\\src\\Tests\\RunTime\\Data\\32tile.png", null);
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-
-        // TODO: Add your update logic here
 
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        _renderer.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        _renderer.Begin();
+        _renderer.DrawSprite(_testTexture, new Vector2(100, 100));
+        _renderer.DrawSprite(_secondTexture, new Vector2(10, 10));
+        _renderer.End();
 
         base.Draw(gameTime);
     }
