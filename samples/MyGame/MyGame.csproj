@@ -26,4 +26,10 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Core\Core.csproj" />
+    <ProjectReference Include="..\..\src\Editor\Editor.csproj" />
+    <ProjectReference Include="..\..\src\Render\Render.csproj" />
+    <ProjectReference Include="..\..\src\RunTime\Runtime.csproj" />
+  </ItemGroup>
 </Project>
