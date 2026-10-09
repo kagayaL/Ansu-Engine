@@ -1,60 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text.Json;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Runtime;
 
-//инфа об уровне
 public record class MapData
 {
-    public int Height { get; init; }
-    public int Width { get; init; }
-    public int TileSize { get; init; }
-    public List<LayerData>? LayersData { get; init; }
-    public List<TilesetData>? TilesetsData { get; init; }
-
+    [JsonPropertyName("width")] public int Width { get; init; }
+    [JsonPropertyName("height")] public int Height { get; init; }
+    [JsonPropertyName("tile_size")] public int TileSize { get; init; }
+    [JsonPropertyName("layers")] public List<LayerData>? LayersData { get; init; }
+    [JsonPropertyName("tilesets")] public List<TilesetData>? TilesetsData { get; init; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum LayerType
 {
-    TILE,
-    OBJECT
+    [JsonStringEnumMemberName("tile")] Tile,
+    [JsonStringEnumMemberName("object")] Object
 }
 
 public record class LayerData
 {
-    public LayerType Type { get; init; }
-    public string? Name { get; init; }
-    public bool? Visible { get; init; }
+    [JsonPropertyName("type")] public LayerType Type { get; init; }
+    [JsonPropertyName("name")] public string? Name { get; init; }
+    [JsonPropertyName("visible")] public bool? Visible { get; init; }
 
-    //Свойства для TILE:
-    public long[]? Grid { get; init; }
-    public int Cols { get; init; }
-    public int Rows { get; init; }
+    // Для Tile
+    [JsonPropertyName("grid")] public long[]? Grid { get; init; }
+    [JsonPropertyName("cols")] public int Cols { get; init; }
+    [JsonPropertyName("rows")] public int Rows { get; init; }
 
-    //Свойства для OBJECT:
-    public string? DrawOrder { get; init; }
-    public List<ObjectData>? Objects { get; init; }
+    // Для Object
+    [JsonPropertyName("draw_order")] public string? DrawOrder { get; init; }
+    [JsonPropertyName("objects")] public List<ObjectData>? Objects { get; init; }
 }
 
 public record class TilesetData
 {
-    public int FirstGid { get; init; }
-    public string? Source { get; init; }
+    [JsonPropertyName("first_gid")] public int FirstGid { get; init; }
+    [JsonPropertyName("last_gid")] public int LastGid { get; init; }
+    [JsonPropertyName("source")] public string? Source { get; init; }
+    [JsonPropertyName("name")] public string Name { get; init; } = "";
+    [JsonPropertyName("tile_width")] public int TileWidth { get; init; }
+    [JsonPropertyName("tile_height")] public int TileHeight { get; init; }
+    [JsonPropertyName("tile_count")] public int TileCount { get; init; }
+    [JsonPropertyName("columns")] public int Columns { get; init; }
+    [JsonPropertyName("margin")] public int Margin { get; init; }
+    [JsonPropertyName("spacing")] public int Spacing { get; init; }
+    [JsonPropertyName("image_source")] public string ImageSource { get; init; } = "";
+    [JsonPropertyName("image_width")] public int ImageWidth { get; init; }
+    [JsonPropertyName("image_height")] public int ImageHeight { get; init; }
 }
+
 public record class ObjectData
 {
-    public string? Name { get; init; }
-    public long? Gid { get; init; }
-    public float Height { get; init; }
-    public float Width { get; init; }
-    public float Rotation { get; init; }
-    public float X { get; init; }
-    public float Y { get; init; }
-    public bool Visible { get; init; }
-    public float Opacity { get; init; }
-
+    [JsonPropertyName("name")] public string? Name { get; init; }
+    [JsonPropertyName("gid")] public long? Gid { get; init; }
+    [JsonPropertyName("height")] public float Height { get; init; }
+    [JsonPropertyName("width")] public float Width { get; init; }
+    [JsonPropertyName("rotation")] public float Rotation { get; init; }
+    [JsonPropertyName("x")] public float X { get; init; }
+    [JsonPropertyName("y")] public float Y { get; init; }
+    [JsonPropertyName("visible")] public bool Visible { get; init; }
+    [JsonPropertyName("opacity")] public float Opacity { get; init; }
 }

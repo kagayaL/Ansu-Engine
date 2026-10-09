@@ -1,50 +1,55 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
+using Render.Graphics;
+using Runtime;
+using Runtime.MapRenderer;
 namespace MyGame;
 
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-
+    private Renderer _renderer;
+    private Texture2D _testTexture, _secondTexture;
+    private MapRenderer _mapRenderer;
+    private MapData _mapData;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.PreferredBackBufferWidth = 1280;
+        _graphics.PreferredBackBufferHeight = 720;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
-
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
+        _renderer = new Renderer(GraphicsDevice);
+        _mapRenderer = new();
+        _mapData = TiledConverter.Convert("C:\\Users\\Denis\\Desktop\\FillerName\\src\\Tests\\RunTime\\Data\\sample.tmj");
+        _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
 
-        // TODO: use this.Content to load your game content here
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-
-        // TODO: Add your update logic here
 
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        // TODO: Add your drawing code here
+        _renderer.Clear(Color.Gray);
+        _renderer.Begin();
+        _mapRenderer.DrawMap(_renderer, _mapData);
+        _renderer.End();
 
         base.Draw(gameTime);
     }
