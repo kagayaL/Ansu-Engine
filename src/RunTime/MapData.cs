@@ -38,6 +38,7 @@ public record class LayerData
 public record class TilesetData
 {
     [JsonPropertyName("first_gid")] public int FirstGid { get; init; }
+    [JsonPropertyName("last_gid")] public int LastGid { get; init; }
     [JsonPropertyName("source")] public string? Source { get; init; }
     [JsonPropertyName("name")] public string Name { get; init; } = "";
     [JsonPropertyName("tile_width")] public int TileWidth { get; init; }

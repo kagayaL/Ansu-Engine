@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Render.Graphics;   // ← namespace твоего Renderer
+using Render.Graphics;
 using Runtime;
 using Runtime.MapRenderer;
 namespace MyGame;
@@ -12,10 +12,12 @@ public class Game1 : Game
     private Renderer _renderer;
     private Texture2D _testTexture, _secondTexture;
     private MapRenderer _mapRenderer;
-    private MapData mapData;
+    private MapData _mapData;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.PreferredBackBufferWidth = 1280;
+        _graphics.PreferredBackBufferHeight = 720;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -29,15 +31,9 @@ public class Game1 : Game
     {
         _renderer = new Renderer(GraphicsDevice);
         _mapRenderer = new();
-        mapData = TiledConverter.Convert("C:\\Users\\Denis\\Desktop\\FillerName\\src\\Tests\\RunTime\\Data\\sample.tmj");
-        // Создаём текстуру 64×64, заливаем красным
-        _secondTexture = new Texture2D(GraphicsDevice, 64, 64);
-        Color[] data = new Color[64 * 64];
-        for (int i = 0; i < data.Length; i++)
-            data[i] = Color.Red;
-        _secondTexture.SetData(data);
-        _testTexture = Texture2D.FromFile(GraphicsDevice, "C:\\Users\\Denis\\Desktop\\FillerName\\src\\Tests\\RunTime\\Data\\TileSet.png", null);
-        
+        _mapData = TiledConverter.Convert("C:\\Users\\Denis\\Desktop\\FillerName\\src\\Tests\\RunTime\\Data\\sample.tmj");
+        _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
+
     }
 
     protected override void Update(GameTime gameTime)
@@ -51,9 +47,8 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         _renderer.Clear(Color.Gray);
-        Rectangle rec = new Rectangle(128, 64, 32, 32);
         _renderer.Begin();
-        _mapRenderer.DrawMap(_renderer, GraphicsDevice, mapData );
+        _mapRenderer.DrawMap(_renderer, _mapData);
         _renderer.End();
 
         base.Draw(gameTime);

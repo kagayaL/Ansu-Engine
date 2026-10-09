@@ -52,6 +52,7 @@ public static class TiledConverter
             tilesets.Add(new TilesetData
             {
                 FirstGid = tileset.FirstGid,
+                LastGid = tileset.FirstGid + tiledTileset.TileCount - 1,
                 Source = tileset.Source,
                 Name = tiledTileset.Name,
                 TileWidth = tiledTileset.TileWidth,
