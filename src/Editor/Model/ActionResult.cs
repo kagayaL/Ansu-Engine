@@ -1,4 +1,4 @@
-namespace EditorModel;
+namespace Editor.Model;
 
 // Результат операции редактора
 // Для ожидаемых ошибок, которые юзер может исправить

@@ -1,8 +1,8 @@
-namespace EditorModel;
+namespace Editor.Model;
 
 // строка статуса для юзера
 // короткое сообщение о последнем действии в редакторе 
-public class EditorStatus()
+public sealed class EditorStatus()
 {
     public string Message { get; private set; } = "Готово";
 
