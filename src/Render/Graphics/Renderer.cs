@@ -67,9 +67,8 @@ public sealed class Renderer : IDisposable
     //текстура, позиция где рисуем, область где рисуем, нулл=весь экран, цвет, нулл=белый
     public void DrawSprite(Texture2D tex, Vector2 pos, Rectangle? src = null, Color? tint = null)
     {
-        _batch.Draw(tex, pos, src ?? Rectangle.Empty, tint ?? Color.White);
+        _batch.Draw(tex, pos, src, tint ?? Color.White);
     }
-
     //отрисовка спрайта по прямоугольнику
     //переключение мира или камеры
 

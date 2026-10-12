@@ -1,10 +1,11 @@
 ﻿using Runtime;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Tests.RunTime
@@ -15,7 +16,7 @@ namespace Tests.RunTime
         public void Convert_ЛогикаПроверяетсяОднимУтверждением()
         {
             // Arrange — готовим вход
-            var path = "Data/sample.tmj";
+            string path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
 
             // Act — делаем то, что тестируем
             var map = TiledConverter.Convert(path);
@@ -25,18 +26,18 @@ namespace Tests.RunTime
         }
 
         [Fact]
-        public void Polymorphic_Deserialize_Works()
+        public void MapDataTest()
         {
-            string json = """
+            string tmjPath = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
+
+            var options = new JsonSerializerOptions
             {
-              "layers": [
-                { "type": "tilelayer", "id": 1, "name": "Ground", "width": 30, "height": 20, "data": [1,2,3] }
-              ]
-            }
-            """;
-            var map = JsonSerializer.Deserialize<TiledFormat>(json);
-            Assert.NotNull(map);
-            Assert.Single(map.Layers!);
+                WriteIndented = true
+            };
+
+            var map = TiledConverter.Convert(tmjPath);
+            var json = JsonSerializer.Serialize<MapData>(map, options);
+            Console.WriteLine(json);
         }
     }
 }
