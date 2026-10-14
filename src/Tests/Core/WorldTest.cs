@@ -8,14 +8,13 @@ namespace Tests.RunTime;
 public class WorldTest
 {
     [Fact]
-    public void Mfve()
+    public void MoveEntity()
     {
-
         World world = new World();
         Entity deniska = world.CreateEntity();
         Assert.Equal(1, deniska.Id);
 
-        world.AddSystem(new MovmentSystem());
+        world.AddSystem(new MovementSystem());
         world.AddComponent(deniska, new Position(33, 33));
 
         world.AddComponent(deniska, new Velocity(11, 11));
@@ -25,5 +24,7 @@ public class WorldTest
         Assert.Equal(true, res.Equals(new Position(44, 44)));
 
     }
+
+
 }
 
