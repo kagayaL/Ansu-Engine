@@ -1,4 +1,3 @@
-using System.Collections.Generic; // коллекции из стандартной либы .NET
 using Editor.Model;
 
 namespace Editor.Panels;

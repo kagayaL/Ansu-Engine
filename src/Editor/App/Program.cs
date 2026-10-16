@@ -14,7 +14,7 @@ var services = new EditorServices(
     Logger: new NullLogger());
 
 var status = new EditorStatus();
-status.Success("Deniska durak");
+status.Success("StatusBar");
 var selection = new SelectionService();
 var viewport = new ViewportState();
 var actions = new EditorActions(document, selection, services, status);
@@ -29,7 +29,11 @@ var context = new EditorContext(
 
 var panels = new EditorPanels(new IPanel[]
 {
+    new ToolBarPanel(),
+    new HierarchyPanel(),
+    new InspectorPanel(),
     new StatusBarPanel(),
+    new ViewportPanel(),
 });
 
 using var game = new EditorApp(context, panels);
