@@ -41,10 +41,10 @@ public class EditorApp : Game
     // метод, который MonoGame вызывает сам, чтобы нарисовать кадр (60/с)
     protected override void Draw(GameTime gameTime)
 {
-    _imgui.BeforeLayout(gameTime);
+    _imgui.BeforeLayout(gameTime); // ImGui готовится: обновляет ввод, начинает новый frame
     GraphicsDevice.Clear(new Color(35, 37, 42));
-    _panels.Draw(_context);       
-    _imgui.AfterLayout();
+    _panels.Draw(_context);        
+    _imgui.AfterLayout(); //  ImGui завершает frame и выводит всё на экран
     base.Draw(gameTime);
 }
 }

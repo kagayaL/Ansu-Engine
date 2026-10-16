@@ -9,7 +9,7 @@ public sealed class StatusBarPanel : IPanel
     // вызывается каждый кадр EditorPanels
     public void Draw(EditorContext context)
     {
-        var io = ImGui.GetIO();
+        var io = ImGui.GetIO(); // глобальный объект ImGui с информацией о состоянии
         float windowHeight = io.DisplaySize.Y;
         float windowWidth = io.DisplaySize.X;
         // прибить к низу окна, растянуть на всю ширину
@@ -18,12 +18,12 @@ public sealed class StatusBarPanel : IPanel
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(windowWidth, BarHeight), ImGuiCond.Always);
             
         ImGuiWindowFlags flags =
-            ImGuiWindowFlags.NoTitleBar |
+            ImGuiWindowFlags.NoTitleBar | // убирает серую полосу заголовка
             ImGuiWindowFlags.NoResize |      // нельзя тянуть за углы и менять размер
             ImGuiWindowFlags.NoMove |        // нельзя перетащить мышью за заголовок
             ImGuiWindowFlags.NoSavedSettings; // не сохранять положение и размер в imgui.ini
 
-            ImGui.Begin("##StatusBar", flags);
+            ImGui.Begin("##StatusBar", flags); // открывает окно с названием статусбар, но в заголовке не показывает
             
             // цвет красный при ошибке, зелёный иначе
             var color = context.Status.IsError
@@ -31,8 +31,8 @@ public sealed class StatusBarPanel : IPanel
                 : new System.Numerics.Vector4(0.7f, 1f, 0.7f, 1f);  
 
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.TextUnformatted(context.Status.Message);
-            ImGui.PopStyleColor();
+            ImGui.TextUnformatted(context.Status.Message); // выводит строку без разбора %
+            ImGui.PopStyleColor(); // пара к push, возвращает текст какого цвета был
 
             ImGui.End();
         }
