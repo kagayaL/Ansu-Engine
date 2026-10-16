@@ -13,19 +13,27 @@ namespace Runtime;
 public class RenderSystem
 {
     private List<SpriteData> _sprites = [];
+    private Renderer _renderer;
+    private ResourceManager _manager;
+    
+    public RenderSystem(Renderer renderer, ResourceManager manager)
+    {
+        _renderer = renderer;
+        _manager = manager;
+    }
+
     //рисует спрайты из очереди. перед этим батч должен быть открыт
-    public void DrawSprites(List<(Position, Sprite)> query, GraphicsDevice device, Renderer renderer,
-        ResourceManager manager)
+    public void DrawSprites(List<(Position, Sprite)> query) // потом очередь поменять на world и уже из него брать
     {
         LoadSprites(query);
         foreach (var sprite in _sprites)
         {
-            Texture2D texture = manager.GetTexture(sprite.Sprite.TextureId);
+            Texture2D texture = _manager.GetTexture(sprite.Sprite.TextureId);
 
             Vector2 position = CoreToMonogame.ConvertVector2(sprite.Position.Coordinates);
             Rectangle? rect = CoreToMonogame.ConvertRectangle(sprite.Sprite.SourceRect);
             
-            renderer.DrawSprite(texture, position, rect);
+            _renderer.DrawSprite(texture, position, rect);
         }
         
     }

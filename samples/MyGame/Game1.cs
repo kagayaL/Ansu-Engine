@@ -18,7 +18,6 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private Renderer _renderer;
-    private Texture2D _testTexture, _secondTexture;
     private MapRenderer _mapRenderer;
     private MapData _mapData;
     private World _world;
@@ -43,12 +42,16 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _query = [];
-        _renderSystem = new RenderSystem();
-        _world = new World();
         _manager = new ResourceManager();
+        _renderer = new Renderer(GraphicsDevice);
+
+
+        _renderSystem = new RenderSystem(_renderer, _manager);
+
+        _world = new World();
         _koza = _world.CreateEntity();
         Position position = new Position(100, 100);
-        Velocity velocity = new Velocity(1, 1);
+        Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
         Sprite sprite = new Sprite(_manager.LoadTexture(path, GraphicsDevice));
         _world.AddComponent(_koza, position);
@@ -58,7 +61,6 @@ public class Game1 : Game
         _query.Add((_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza)));
 
 
-        _renderer = new Renderer(GraphicsDevice);
         _mapRenderer = new();
         path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
         _mapData = TiledConverter.Convert(path);
@@ -70,7 +72,8 @@ public class Game1 : Game
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        _world.Update(1);
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        _world.Update(dt);
         _query[0] = (_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza));
         base.Update(gameTime);
     }
@@ -80,7 +83,7 @@ public class Game1 : Game
         _renderer.Clear(Color.Gray);
         _renderer.Begin();
         _mapRenderer.DrawMap(_renderer, _mapData);
-        _renderSystem.DrawSprites(_query, GraphicsDevice, _renderer, _manager);
+        _renderSystem.DrawSprites(_query);
         _renderer.End();
 
         base.Draw(gameTime);
