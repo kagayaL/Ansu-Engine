@@ -32,4 +32,9 @@
     <ProjectReference Include="..\..\src\Render\Render.csproj" />
     <ProjectReference Include="..\..\src\RunTime\Runtime.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\src\Tests\RunTime\Data\**\*"
+			  Link="Data\%(RecursiveDir)%(Filename)%(Extension)"
+			  CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 </Project>

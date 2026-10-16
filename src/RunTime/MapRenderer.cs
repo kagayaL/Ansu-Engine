@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Render.Graphics;
+using Runtime.TIledParse;
 
 
 namespace Runtime.MapRenderer;

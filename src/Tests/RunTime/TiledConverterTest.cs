@@ -1,4 +1,5 @@
-﻿using Runtime;
+﻿using Runtime.TIledParse;
+using Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,8 +29,7 @@ namespace Tests.RunTime
         [Fact]
         public void MapDataTest()
         {
-            string tmjPath = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
-
+            string tmjPath = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true
