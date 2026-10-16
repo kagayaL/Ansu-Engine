@@ -18,7 +18,7 @@ public sealed class HierarchyPanel : IPanel
             new System.Numerics.Vector2(0, ToolbarHeight),
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(HierarchyWidth, windowHeight - StatusBarHeight),
+            new System.Numerics.Vector2(HierarchyWidth, windowHeight - StatusBarHeight - ToolbarHeight),
             ImGuiCond.Always);
 
         ImGuiWindowFlags flags =

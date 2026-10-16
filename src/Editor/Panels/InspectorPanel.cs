@@ -16,11 +16,12 @@ public sealed class InspectorPanel : IPanel
         float windowWidth  = io.DisplaySize.X;
         float windowHeight = io.DisplaySize.Y;
 
+
          ImGui.SetNextWindowPos(
             new System.Numerics.Vector2(windowWidth - InspectorWidth, ToolbarHeight),
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(InspectorWidth, windowHeight - StatusBarHeight),
+            new System.Numerics.Vector2(InspectorWidth, windowHeight - StatusBarHeight - ToolbarHeight),
             ImGuiCond.Always);
 
         ImGuiWindowFlags flags =
