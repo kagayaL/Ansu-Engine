@@ -39,8 +39,8 @@ public sealed class Renderer : IDisposable
             throw new InvalidOperationException("Renderer.Begin вызван дважды: батч уже открыт.");
 
         _batch.Begin(
-            //копит все draw чтобы потом отправить в один батч, сортирует если есть слои
-            sortMode: SpriteSortMode.Deferred,
+            //отрисовывает слои начиная с задних
+            sortMode: SpriteSortMode.BackToFront,
             //смешивание цветов, так чтобы прозрачные пиксели были видны
             blendState: BlendState.AlphaBlend,
             samplerState: SamplerState.PointClamp,
@@ -83,6 +83,17 @@ public sealed class Renderer : IDisposable
     public void DrawRect(Rectangle destination, Color color)
     {
         _batch.Draw(_pixelTexture, destination, color);
+    }
+
+    public void DrawSprite(Texture2D tex, Vector2 pos, float rotation, Vector2 origin, Rectangle? src = null, 
+    Color? tint = null, Vector2? scale = null, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
+    {
+        Vector2 actualScale = scale ?? Vector2.One;
+        int spriteWidth = src.HasValue ? src.Value.Width : tex.Width;
+        int spriteHeight = src.HasValue ? src.Value.Height : tex.Height;
+        Vector2 originInPixels = new Vector2(origin.X * spriteWidth, origin.Y * spriteHeight);
+        _batch.Draw(texture: tex, position: pos, sourceRectangle: src, color: tint ?? Color.White,
+        rotation: rotation, origin: originInPixels, scale: actualScale, effects: effects, layerDepth: layerDepth);
     }
 
     //освобождение гпу

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Render.Input;
 using Render.Graphics;
 
-namespace Sandbox;
+namespace MyGame;
 
 public sealed class Game1 : Game
 {
