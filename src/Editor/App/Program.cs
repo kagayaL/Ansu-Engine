@@ -32,8 +32,8 @@ var panels = new EditorPanels(new IPanel[]
     new ToolBarPanel(),
     new HierarchyPanel(),
     new InspectorPanel(),
-    new StatusBarPanel(),
     new ViewportPanel(),
+    new StatusBarPanel(),
 });
 
 using var game = new EditorApp(context, panels);

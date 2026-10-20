@@ -1,5 +1,6 @@
 using ImGuiNET;
 using Editor.Model;
+using Microsoft.VisualBasic;
 
 namespace Editor.Panels;
 
@@ -17,10 +18,10 @@ public sealed class InspectorPanel : IPanel
         float windowHeight = io.DisplaySize.Y;
 
          ImGui.SetNextWindowPos(
-            new System.Numerics.Vector2(windowWidth - InspectorWidth, ToolbarHeight),
+            new System.Numerics.Vector2(windowWidth - Constants.InspectorWidth, Constants.ToolbarHeight),
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(InspectorWidth, windowHeight - StatusBarHeight),
+            new System.Numerics.Vector2(Constants.InspectorWidth, windowHeight - Constants.StatusBarHeight),
             ImGuiCond.Always);
 
         ImGuiWindowFlags flags =

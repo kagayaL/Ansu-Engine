@@ -1,24 +1,25 @@
 using ImGuiNET;
 using Editor.Model;
+using Core.Physics.Components;
+using Core.ECS;
+using System.Linq;
+using System.Reflection.Metadata;
+using Microsoft.VisualBasic;
 
 namespace Editor.Panels;
 
 public sealed class HierarchyPanel : IPanel
 {
-    private const float StatusBarHeight = 24f;
-    private const float ToolbarHeight = 20f;
-    private const float HierarchyWidth = 220f;
-
     public void Draw(EditorContext context)
     {
         var io = ImGui.GetIO(); // глобальный объект ImGui с информацией о состоянии
         float windowHeight = io.DisplaySize.Y;
 
          ImGui.SetNextWindowPos(
-            new System.Numerics.Vector2(0, ToolbarHeight),
+            new System.Numerics.Vector2(0, Constants.ToolbarHeight),
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(HierarchyWidth, windowHeight - StatusBarHeight),
+            new System.Numerics.Vector2(Constants.HierarchyWidth, Constants.ToolbarHeight - (windowHeight - Constants.StatusBarHeight)),
             ImGuiCond.Always);
 
         ImGuiWindowFlags flags =
@@ -28,7 +29,32 @@ public sealed class HierarchyPanel : IPanel
 
             ImGui.Begin("Hierarchy", flags);
 
-            ImGui.TextUnformatted("The scene is not loaded"); // заглушка, сцены пока нет
-            ImGui.End();
+            var scene = context.Document.Scene;
+            var positions = scene.World.GetPool<Position>(); // берем всех на конкретной позиции
+
+            if (positions.Count == 0)
+        {
+            ImGui.TextUnformatted("The scene is empty");
+        }
+        else
+        {
+            var entitiesList = positions.Keys.ToList();
+
+            for (int i = 0; i < entitiesList.Count; i++)
+            {
+                int entityID = entitiesList[i];
+                var entity = new Entity(entityID);
+
+                bool isSelected = context.Selection.IsSelected(entity);
+
+                string label = "Entity " + entityID + "##" + i;
+
+                if (ImGui.Selectable(label, isSelected))
+                {
+                    context.Selection.Select(entity);
+                }
+            }
+        }
+        ImGui.End();
     }
 }

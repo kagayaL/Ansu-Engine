@@ -1,5 +1,6 @@
 using ImGuiNET;
 using Editor.Model;
+using Microsoft.VisualBasic;
 
 namespace Editor.Panels;
 // центральная панель
@@ -17,11 +18,11 @@ public sealed class ViewportPanel : IPanel
         float windowWidth  = io.DisplaySize.X;
 
          ImGui.SetNextWindowPos(
-            new System.Numerics.Vector2(HierarchyWidth, ToolbarHeight),
+            new System.Numerics.Vector2(Constants.HierarchyWidth, Constants.ToolbarHeight),
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(windowWidth - HierarchyWidth - InspectorWidth,
-                windowHeight - ToolbarHeight - StatusBarHeight),
+            new System.Numerics.Vector2(windowWidth - Constants.HierarchyWidth - Constants.InspectorWidth,
+                windowHeight - Constants.ToolbarHeight - Constants.StatusBarHeight),
             ImGuiCond.Always);
 
         ImGuiWindowFlags flags =

@@ -1,5 +1,7 @@
 using Core.ECS;
+using Core.Physics.Components;
 using Editor.Selection;
+using Core.Math;
 // логика редактора - что можно делать со сценой
 // панели вызывают эти методы, не трогая World
 namespace Editor.Model;
@@ -19,5 +21,62 @@ public sealed class EditorActions
         _selection = selection;
         _services = services;
         _status = status;
+    }
+
+    public ActionResult CreateEntity(string name)
+    {
+        name = name.Trim();
+
+        if (name.Length == 0)
+        {
+            return ActionResult.Fail("Name can't be empty");
+        }
+        var scene = _document.Scene;
+        var entity = scene.World.CreateEntity();
+        scene.World.AddComponent(entity, new Position(0f, 0f));
+
+        _selection.Select(entity);
+        _document.MarkDirty();
+        return ActionResult.Ok();
+    }
+
+    public ActionResult DeleteEntity(Entity entity)
+    {
+        var world = _document.Scene.World;
+
+        if (!world.IsAlive(entity))
+        {
+            return ActionResult.Fail("The entity was not found");
+        }
+
+        world.DestroyEntity(entity);
+        
+        if (_selection.IsSelected(entity))
+        {
+            _selection.Clear();
+        }
+
+            _document.MarkDirty();
+            return ActionResult.Ok();
+    }
+
+    public ActionResult SetPosition(Entity entity, float x, float y)
+    {
+        var world = _document.Scene.World;
+
+        if (!world.IsAlive(entity))
+        {
+            return ActionResult.Fail("The entity was not found");
+        }
+        if (!world.HasComponent<Position>(entity))
+        {
+            return ActionResult.Fail("The entity has not Position");
+        }
+
+        ref var pos = ref world.GetComponent<Position>(entity);
+        pos.Coordinates = new Vector2(x, y);
+
+        _document.MarkDirty();
+        return ActionResult.Ok();
     }
 }

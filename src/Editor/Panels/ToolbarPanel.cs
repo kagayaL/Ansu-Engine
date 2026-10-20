@@ -54,7 +54,15 @@ public sealed class ToolBarPanel : IPanel
             }
             ImGui.EndMenu();
         }
-
+        // Entity
+        if (ImGui.MenuItem("Create Entity"))
+        {
+            var result = context.Actions.CreateEntity("Test " + DateTime.Now.Ticks);
+            if (result.Succeeded)
+                context.Status.Success("Entity created");
+            else
+                context.Status.Error(result.Error ?? "Failed");
+        }
         ImGui.EndMainMenuBar();
     }
 }

@@ -1,5 +1,6 @@
 using ImGuiNET;
 using Editor.Model;
+using Microsoft.VisualBasic;
 
 namespace Editor.Panels;
 // полоса внизу окна редактора, прилипает снизу
@@ -13,9 +14,9 @@ public sealed class StatusBarPanel : IPanel
         float windowHeight = io.DisplaySize.Y;
         float windowWidth = io.DisplaySize.X;
         // прибить к низу окна, растянуть на всю ширину
-        ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, windowHeight - StatusBarHeight),
+        ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, windowHeight - Constants.StatusBarHeight),
             ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new System.Numerics.Vector2(windowWidth, StatusBarHeight), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new System.Numerics.Vector2(windowWidth, Constants.StatusBarHeight), ImGuiCond.Always);
             
         ImGuiWindowFlags flags =
             ImGuiWindowFlags.NoTitleBar | // убирает серую полосу заголовка
