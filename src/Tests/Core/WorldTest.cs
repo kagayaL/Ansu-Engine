@@ -1,7 +1,9 @@
 ﻿using Xunit;
+
 using Core.ECS;
 using Core.Physics.Systems;
 using Core.Physics.Components;
+using Core.GameData;
 
 namespace Tests.RunTime;
 
@@ -23,6 +25,25 @@ public class WorldTest
         Console.WriteLine(res.ToString());
         Assert.Equal(true, res.Equals(new Position(44, 44)));
 
+    }
+
+    [Fact]
+    public void QueueOfRenderedEntities()
+    {
+        World world = new World();
+        Entity deniska = world.CreateEntity();
+        world.AddComponent<Position>(deniska, new Position(33, 33));
+
+        List<(Position, Sprite)> emptyList = new List<(Position, Sprite)>();
+        Assert.Equal(emptyList, world.GetRenderList()); // если у сущности только одно из двух (Position, Sprite), она не попадает в очередь
+
+        world.AddComponent<Sprite>(deniska, new Sprite("Jacket"));
+
+        List<(Position, Sprite)> entityList = new List<(Position, Sprite)> { (new Position(33, 33), new Sprite("Jacket")) };
+        Assert.Equal(entityList, world.GetRenderList()); // когда у deniska появился Sprite, он входит в очредеь на отрисовку
+
+        world.RemoveComponent<Position>(deniska);
+        Assert.Equal(emptyList, world.GetRenderList()); // при удалении какого-нибудь из компонентов (Position, Sprite), сущность удаляется из очереди
     }
 
 
