@@ -39,7 +39,7 @@ public class InputSystem : ISystem
 
             if (dir.X != 0f || dir.Y != 0f)
             {
-                dir = dir.Normalized;
+                dir.Normalize();
             }
 
             input.Direction = dir;
