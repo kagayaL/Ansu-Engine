@@ -20,7 +20,6 @@ public class PlayerMovementSystem : ISystem
             ref var input = ref world.GetComponent<InputComponent>(entity);
             ref var velocity = ref world.GetComponent<Velocity>(entity);
 
-            // Задаем скорость на основе направления и скорости сущности
             velocity.Direction = input.Direction * input.Speed;
             
         }
