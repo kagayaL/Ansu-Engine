@@ -8,7 +8,7 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 using System.Reflection.Metadata.Ecma335;
 
-namespace Runtime;  
+namespace Runtime.TIledParse;  
 
 public static class TiledConverter
 {

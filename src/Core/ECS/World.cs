@@ -58,6 +58,7 @@ public class World
     {
         _scheduler.AddSystem(system);
     }
+    
 
     public void Update(float deltaTime)
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Runtime;
+namespace Runtime.TIledParse;
 
 public record class TiledTileset
 {
