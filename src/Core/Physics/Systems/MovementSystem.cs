@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Physics.Systems;
 
-public class MovmentSystem : ECS.ISystem
+public class MovementSystem : ECS.ISystem
 {
     public void Update(World world, float deltaTime)
     {

@@ -1,94 +1,90 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using Core.ECS;
+using Core.GameData;
+using Core.Physics.Components;
+using Core.Physics.Systems;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Render.Input;
+using Microsoft.Xna.Framework.Input;
 using Render.Graphics;
-
+using Runtime;
+using Runtime.MapRenderer;
+using Runtime.TIledParse;
+using System;
+using System.Collections.Generic;
+using System.IO;
 namespace MyGame;
 
-public sealed class Game1 : Game
+public class Game1 : Game
 {
-    private readonly GraphicsDeviceManager _gdm;
-    private readonly WindowSettings _settings;
-    private GraphicsService _graphics;
-    private InputManager _input;
-    private Vector2 _testPosition = new Vector2(600, 300);
-
-
+    private GraphicsDeviceManager _graphics;
+    private Renderer _renderer;
+    private MapRenderer _mapRenderer;
+    private MapData _mapData;
+    private World _world;
+    private Entity _koza;
+    private ResourceManager _manager;
+    private RenderSystem _renderSystem;
+    private List<(Position, Sprite)> _query;
     public Game1()
     {
-        _settings = new WindowSettings
-        {
-            Width = 1280,
-            Height = 720,
-            Title = "Sandbox",
-            ClearColor = Color.CornflowerBlue,
-        };
-
-        _gdm = new GraphicsDeviceManager(this)
-        {
-            //размер окна в пикселях
-            PreferredBackBufferWidth = _settings.Width,
-            PreferredBackBufferHeight = _settings.Height,
-            SynchronizeWithVerticalRetrace = _settings.VSync,
-            PreferredDepthStencilFormat = DepthFormat.None,
-        };
-
-        //текстуры, шрифты, звуки лежат в контент
+        _graphics = new GraphicsDeviceManager(this);
+        _graphics.PreferredBackBufferWidth = 1280;
+        _graphics.PreferredBackBufferHeight = 720;
         Content.RootDirectory = "Content";
-        IsFixedTimeStep = _settings.FixedTimeStep;
-        Window.AllowUserResizing = _settings.AllowResize;
-        Window.Title = _settings.Title;
+        IsMouseVisible = true;
+    }
+
+    protected override void Initialize()
+    {
+        base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        _graphics = new GraphicsService(GraphicsDevice, _settings);
-        _input = new InputManager();
+        _query = [];
+        _manager = new ResourceManager();
+        _renderer = new Renderer(GraphicsDevice);
+
+
+        _renderSystem = new RenderSystem(_renderer, _manager);
+
+        _world = new World();
+        _koza = _world.CreateEntity();
+        Position position = new Position(100, 100);
+        Velocity velocity = new Velocity(100, 100);
+        string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
+        Sprite sprite = new Sprite(_manager.LoadTexture(path, GraphicsDevice));
+        _world.AddComponent(_koza, position);
+        _world.AddComponent(_koza, velocity);
+        _world.AddComponent(_koza, sprite);
+        _world.AddSystem(new MovementSystem());
+        _query.Add((_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza)));
+
+
+        _mapRenderer = new();
+        path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
+        _mapData = TiledConverter.Convert(path);
+        _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
+
     }
 
     protected override void Update(GameTime gameTime)
     {
-        _input.Update();
-        
-        if (_input.IsActionPressed("Pause")) 
-        {
+        if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        }
-
-        //формула для движения, независимого от частоты кадров
-        float speed = 400f * (float)gameTime.ElapsedGameTime.TotalSeconds; 
-
-        if (_input.IsActionDown("MoveLeft"))
-        {
-            _testPosition.X -= speed;
-        }
-        if (_input.IsActionDown("MoveRight"))
-        {
-            _testPosition.X += speed;
-        }
-        if (_input.IsActionDown("MoveStraight")) 
-        {
-            _testPosition.Y -= speed;
-        }
-        if (_input.IsActionDown("MoveBack")) 
-        {
-            _testPosition.Y += speed;
-        }
-
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        _world.Update(dt);
+        _query[0] = (_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza));
         base.Update(gameTime);
     }
-    
 
     protected override void Draw(GameTime gameTime)
     {
-        _graphics.Renderer.Clear(_settings.ClearColor);
-        _graphics.Renderer.Begin();
-        //задаем размеры прямоугольника
-        Rectangle testRect = new Rectangle((int)_testPosition.X, (int)_testPosition.Y, 64, 64);
-        _graphics.Renderer.DrawRect(testRect, Color.Magenta);
-       
-        _graphics.Renderer.End();
+        _renderer.Clear(Color.Gray);
+        _renderer.Begin();
+        _mapRenderer.DrawMap(_renderer, _mapData);
+        _renderSystem.DrawSprites(_query);
+        _renderer.End();
 
         base.Draw(gameTime);
     }
