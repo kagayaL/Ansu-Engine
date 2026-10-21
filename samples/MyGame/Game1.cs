@@ -1,4 +1,4 @@
-﻿using Core.ECS;
+using Core.ECS;
 using Core.GameData;
 using Core.Physics.Components;
 using Core.Physics.Systems;
