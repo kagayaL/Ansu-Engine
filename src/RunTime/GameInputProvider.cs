@@ -4,7 +4,12 @@ using Render.Input;
 namespace Runtime;
 public class GameInputProvider : IInputProvider
 {
-    private InputManager _manager = new();
+    private InputManager _manager;
+
+    public GameInputProvider(InputManager inputManager)
+    {
+        _manager = inputManager;
+    }
     public bool IsActionPressed(string action)
     {
         return _manager.IsActionPressed(action);

@@ -15,11 +15,7 @@ internal class SpriteData : IComparable<SpriteData>
     public int CompareTo(SpriteData? other)
     {
         if (other == null) return 1;
-        if (this == other) return 0;
-
-        if (this.Sprite.Layer > other.Sprite.Layer) return -1;
-        if (this.Sprite.Layer == other.Sprite.Layer) return 1;
-        return 0;
+        return Sprite.Layer.CompareTo(other.Sprite.Layer);
     }
 }
 

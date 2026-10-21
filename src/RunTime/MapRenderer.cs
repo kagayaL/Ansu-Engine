@@ -34,6 +34,10 @@ public sealed class MapRenderer
     //все текстуры 60 раз в секунду
     public void LoadTextures(MapData data, GraphicsDevice device)
     {
+        foreach (var tex in _textures.Values)
+            tex.Dispose();
+        _textures.Clear();
+
         _tileSize = data.TileSize;
         foreach (var tileset in data.TilesetsData ?? [])
         {
@@ -52,7 +56,6 @@ public sealed class MapRenderer
         {
             Rectangle rectangle;
             Texture2D? texture = FindTexture(grid[i], data.TilesetsData, out rectangle);
-
             if (texture == null) continue;
 
             int col = i % layer.Cols;

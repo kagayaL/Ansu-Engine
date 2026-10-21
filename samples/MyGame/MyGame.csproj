@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+	<OutputType>Exe</OutputType>
+	<TargetFramework>net9.0</TargetFramework>
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
@@ -26,15 +26,15 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
   </ItemGroup>
+<ItemGroup>
+	<None Include="..\..\src\Tests\RunTime\Data\**\*"
+			Link="Data\%(RecursiveDir)%(Filename)%(Extension)"
+			CopyToOutputDirectory="PreserveNewest" />
+</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\Core.csproj" />
     <ProjectReference Include="..\..\src\Editor\Editor.csproj" />
     <ProjectReference Include="..\..\src\Render\Render.csproj" />
     <ProjectReference Include="..\..\src\RunTime\Runtime.csproj" />
   </ItemGroup>
-	<ItemGroup>
-		<None Include="..\..\src\Tests\RunTime\Data\**\*"
-			  Link="Data\%(RecursiveDir)%(Filename)%(Extension)"
-			  CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
 </Project>
