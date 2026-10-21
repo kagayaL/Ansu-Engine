@@ -1,7 +1,7 @@
 using Core.ECS;
+using Core.Physics.Systems;
 using Core.GameData;
 using Core.Physics.Components;
-using Core.Physics.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,10 +12,13 @@ using Runtime.TIledParse;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Render.Input;
+using Core.Input;
 namespace MyGame;
 
 public class Game1 : Game
 {
+    private InputManager _inputManager;
     private GraphicsDeviceManager _graphics;
     private Renderer _renderer;
     private MapRenderer _mapRenderer;
@@ -54,10 +57,15 @@ public class Game1 : Game
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
         Sprite sprite = new Sprite(_manager.LoadTexture(path, GraphicsDevice));
+        InputComponent inputComponent = new InputComponent(1000f);
         _world.AddComponent(_koza, position);
         _world.AddComponent(_koza, velocity);
         _world.AddComponent(_koza, sprite);
+        _world.AddComponent(_koza, inputComponent);
+
+        _world.AddSystem(new InputSystem(new GameInputProvider()));
         _world.AddSystem(new MovementSystem());
+
         _query.Add((_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza)));
 
 
