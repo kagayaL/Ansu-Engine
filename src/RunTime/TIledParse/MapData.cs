@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace Runtime;
 
+
+//Набор информации о карте
 public record class MapData
 {
     [JsonPropertyName("width")] public int Width { get; init; }
