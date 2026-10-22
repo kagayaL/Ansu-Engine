@@ -88,7 +88,7 @@ public class Game1 : Game
             Exit();
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (_inputManager.IsActionDown("Interact"))
+        if (_inputManager.IsActionPressed("Interact"))
         {
             string path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
             path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
@@ -106,6 +106,7 @@ public class Game1 : Game
         _renderer.Clear(Color.Gray);
         _renderer.Begin();
         _mapRenderer.DrawMap(_renderer, _mapData);
+        _renderSystem.DrawSprites(_query);
         _renderer.End();
 
         base.Draw(gameTime);
