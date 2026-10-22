@@ -8,6 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Render.Graphics;
+using Core.ECS;
+using Core.GameData.TileMap;
+using System.Runtime;
 
 namespace Runtime;
 public class RenderSystem
@@ -23,31 +26,57 @@ public class RenderSystem
     }
 
     //рисует спрайты из очереди. перед этим батч должен быть открыт
-    public void DrawSprites(List<(Position, Sprite)> query) // потом очередь поменять на world и уже из него брать
+    public void DrawSprites(World world) // потом очередь поменять на world и уже из него брать
     {
-        LoadSprites(query);
+        LoadSprites(world);
         foreach (var sprite in _sprites)
         {
-            Texture2D texture = _manager.GetTexture(sprite.Sprite.TextureId);
+            if (sprite.Sprite != null)
+            {
+                Texture2D? texture = _manager.GetTexture(sprite.Sprite.Value.TextureId);
 
-            Vector2 position = CoreToMonogame.ConvertVector2(sprite.Position.Coordinates);
-            Rectangle? rect = CoreToMonogame.ConvertRectangle(sprite.Sprite.SourceRect);
+                if (texture == null) continue;
+
+                Vector2 position = CoreToMonogame.ConvertVector2(sprite.Position.Coordinates);
+                Rectangle? rect = CoreToMonogame.ConvertRectangle(sprite.Sprite.Value.SourceRect);
+
+                _renderer.DrawSprite(texture, position, rect);
+            }
             
-            _renderer.DrawSprite(texture, position, rect);
         }
         
     }
 
     //Из очереди грузим в мой список и сортируем по слою, чтобы правильно рисовать
-    private void LoadSprites(List<(Position, Sprite)> query)
+    private void LoadSprites(World world)
     {
+        List<Entity> query = world.GetRenderList();
+
         _sprites.Clear();
         foreach (var item in query)
         {
-            SpriteData data = new SpriteData
+            Sprite? sprite = null;
+            TileMapComponent? tileMap = null;
+            int depth = 0;
+
+            if (world.HasComponent<Sprite>(item))
             {
-                Position = item.Item1,
-                Sprite = item.Item2
+                sprite = world.GetComponent<Sprite>(item);
+                depth = sprite.Value.Layer;
+            }
+            else if (world.HasComponent<TileMapComponent>(item))
+            {
+                tileMap = world.GetComponent<TileMapComponent>(item);
+                depth = tileMap.Value.Layer;
+            }
+
+            SpriteData data = new SpriteData
+                {
+                    Position = world.GetComponent<Position>(item),
+                    Sprite = sprite,
+                    TileMapComponent = tileMap,
+                    Layer = depth
+    
             };
             _sprites.Add(data);
         }

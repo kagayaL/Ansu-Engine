@@ -24,7 +24,6 @@ public class Game1 : Game
     private Entity _koza;
     private ResourceManager _manager;
     private RenderSystem _renderSystem;
-    private List<(Position, Sprite)> _query;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -41,8 +40,7 @@ public class Game1 : Game
 
     protected override void LoadContent()
     {
-        _query = [];
-        _manager = new ResourceManager();
+        _manager = new ResourceManager(GraphicsDevice);
         _renderer = new Renderer(GraphicsDevice);
 
 
@@ -53,13 +51,13 @@ public class Game1 : Game
         Position position = new Position(100, 100);
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
-        Sprite sprite = new Sprite(_manager.LoadTexture(path, GraphicsDevice));
+        Sprite sprite = new Sprite(_manager.LoadTexture(path));
         _world.AddComponent(_koza, position);
         _world.AddComponent(_koza, velocity);
         _world.AddComponent(_koza, sprite);
         _world.AddSystem(new MovementSystem());
-        _query.Add((_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza)));
-
+        List<Entity> entities = _world.GetRenderList();
+        Console.WriteLine($"{entities.Count}");
 
         _mapRenderer = new();
         path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
@@ -74,7 +72,6 @@ public class Game1 : Game
             Exit();
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         _world.Update(dt);
-        _query[0] = (_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza));
         base.Update(gameTime);
     }
 
@@ -82,8 +79,8 @@ public class Game1 : Game
     {
         _renderer.Clear(Color.Gray);
         _renderer.Begin();
-        _mapRenderer.DrawMap(_renderer, _mapData);
-        _renderSystem.DrawSprites(_query);
+        //_mapRenderer.DrawMap(_renderer, _mapData);
+        _renderSystem.DrawSprites(_world);
         _renderer.End();
 
         base.Draw(gameTime);
