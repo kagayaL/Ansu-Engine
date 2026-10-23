@@ -59,10 +59,7 @@ public class Game1 : Game
         _mapData = TiledConverter.Convert(path);
         MapLoader.LoadMap(_mapData, _world, _manager);
 
-        List<Entity> entities = _world.GetRenderList();
-        Console.WriteLine($"{entities.Count}");
-
-        
+        List<Entity> entities = _world.GetRenderList();        
 
     }
 
