@@ -40,7 +40,7 @@ public sealed class Renderer : IDisposable
 
         _batch.Begin(
             //отрисовывает слои начиная с задних
-            sortMode: SpriteSortMode.BackToFront,
+            sortMode: SpriteSortMode.Deferred,
             //смешивание цветов, так чтобы прозрачные пиксели были видны
             blendState: BlendState.AlphaBlend,
             samplerState: SamplerState.PointClamp,

@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Render.Graphics;
 using Runtime;
-using Runtime.MapRenderer;
 using Runtime.TIledParse;
 using System;
 using System.Collections.Generic;
@@ -18,7 +17,6 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private Renderer _renderer;
-    private MapRenderer _mapRenderer;
     private MapData _mapData;
     private World _world;
     private Entity _koza;
@@ -51,18 +49,20 @@ public class Game1 : Game
         Position position = new Position(100, 100);
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
-        Sprite sprite = new Sprite(_manager.LoadTexture(path));
+        Sprite sprite = new Sprite(_manager.LoadTexture(path), 4);
         _world.AddComponent(_koza, position);
         _world.AddComponent(_koza, velocity);
         _world.AddComponent(_koza, sprite);
         _world.AddSystem(new MovementSystem());
+
+        path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
+        _mapData = TiledConverter.Convert(path);
+        MapLoader.LoadMap(_mapData, _world, _manager);
+
         List<Entity> entities = _world.GetRenderList();
         Console.WriteLine($"{entities.Count}");
 
-        _mapRenderer = new();
-        path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
-        _mapData = TiledConverter.Convert(path);
-        _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
+        
 
     }
 
@@ -80,7 +80,7 @@ public class Game1 : Game
         _renderer.Clear(Color.Gray);
         _renderer.Begin();
         //_mapRenderer.DrawMap(_renderer, _mapData);
-        _renderSystem.DrawSprites(_world);
+        _renderSystem.DrawRenderList(_world);
         _renderer.End();
 
         base.Draw(gameTime);
