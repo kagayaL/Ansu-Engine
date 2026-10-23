@@ -12,7 +12,6 @@ public class World
     private readonly HashSet<int> _entities = new();
 
     // ID сущностей, у которых есть Position и Sprite
-    private readonly HashSet<int> _renderableEntities = new();
     private readonly List<Entity> _renderList = new();
 
     private readonly ComponentStore _store = new();
@@ -29,7 +28,7 @@ public class World
     {
         if (_entities.Remove(entity.Id))
         {
-            _renderableEntities.Remove(entity.Id);
+            _renderList.Remove(entity);
             _store.RemoveAll(entity.Id);
         }
     }
