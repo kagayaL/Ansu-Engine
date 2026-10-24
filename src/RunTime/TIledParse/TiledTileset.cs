@@ -7,6 +7,7 @@ using System.Xml.Linq;
 
 namespace Runtime.TIledParse;
 
+//Данные о тайлсете из tiled
 public record class TiledTileset
 {
     public string Name { get; init; } = "";

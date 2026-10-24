@@ -10,6 +10,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace Runtime.TIledParse;  
 
+//Конвретация map.tmj в MapData
 public static class TiledConverter
 {
     private const uint GID_MASK = 0x0FFFFFFF;

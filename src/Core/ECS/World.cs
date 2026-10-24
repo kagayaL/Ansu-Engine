@@ -2,6 +2,7 @@
 
 using Core.GameData;
 using Core.Physics.Components;
+using Core.GameData.TileMap;
 
 namespace Core.ECS;
 
@@ -11,8 +12,7 @@ public class World
     private readonly HashSet<int> _entities = new();
 
     // ID сущностей, у которых есть Position и Sprite
-    private readonly HashSet<int> _renderableEntities = new();
-    private readonly List<(Position, Sprite)> _renderList = new();
+    private readonly List<Entity> _renderList = new();
 
     private readonly ComponentStore _store = new();
     private readonly SystemScheduler _scheduler = new();
@@ -28,7 +28,7 @@ public class World
     {
         if (_entities.Remove(entity.Id))
         {
-            _renderableEntities.Remove(entity.Id);
+            _renderList.Remove(entity);
             _store.RemoveAll(entity.Id);
         }
     }
@@ -40,13 +40,15 @@ public class World
         _store.Add(entity.Id, component);
 
         // Добавляем в список отрисовки, если собралась пара Position + Sprite
-        if (typeof(T) == typeof(Sprite) && _store.Has<Position>(entity.Id))
+        if ((typeof(T) == typeof(Sprite) || typeof(T) == typeof(TileMapComponent)) &&
+            _store.Has<Position>(entity.Id))
         {
-            _renderableEntities.Add(entity.Id);
+            _renderList.Add(entity);
         }
-        else if (typeof(T) == typeof(Position) && _store.Has<Sprite>(entity.Id))
+        else if (typeof(T) == typeof(Position) &&
+            (_store.Has<Sprite>(entity.Id) || _store.Has<TileMapComponent>(entity.Id)))
         {
-            _renderableEntities.Add(entity.Id);
+            _renderList.Add(entity);
         }
     }
 
@@ -62,10 +64,11 @@ public class World
 
     public void RemoveComponent<T>(Entity entity) where T : struct
     {
-        // Убираем из отрисовки при удалении любого из двух компонентов
-        if (typeof(T) == typeof(Sprite) || typeof(T) == typeof(Position))
+        // Убираем из отрисовки при удалении любого из трех компонентов
+        if (typeof(T) == typeof(Sprite) || typeof(T) == typeof(Position) ||
+           typeof(T) == typeof(TileMapComponent))
         {
-            _renderableEntities.Remove(entity.Id);
+            _renderList.Remove(entity);
         }
 
         _store.Remove<T>(entity.Id);
@@ -77,15 +80,8 @@ public class World
     }
 
     // Возвращает актуальный список (Position, Sprite) для рендера
-    public List<(Position, Sprite)> GetRenderList()
+    public List<Entity> GetRenderList()
     {
-        _renderList.Clear();
-
-        foreach (int id in _renderableEntities)
-        {
-            _renderList.Add((_store.Get<Position>(id), _store.Get<Sprite>(id)));
-        }
-
         return _renderList;
     }
 
