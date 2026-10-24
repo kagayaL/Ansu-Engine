@@ -20,9 +20,9 @@ public struct Sprite : IComponent
 
 
     // Слой, на котором должен быть отрисован спрайт.
-    public Layer Layer;
+    public int Layer;
 
-    public Sprite(int textureId, Layer layer = Layer.World, Rect? sourceRect = null)
+    public Sprite(int textureId, int layer = 0, Rect? sourceRect = null)
     {
         TextureId = textureId;
         Layer = layer;

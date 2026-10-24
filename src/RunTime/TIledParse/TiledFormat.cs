@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Runtime.TIledParse;
 
+//Формат карты из Tiled
 public record class TiledFormat
 {
     [JsonPropertyName("compressionlevel")] public int CompressionLevel { get; init; }
