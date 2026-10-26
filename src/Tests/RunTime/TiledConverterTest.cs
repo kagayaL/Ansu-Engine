@@ -17,7 +17,8 @@ namespace Tests.RunTime
         public void Convert_ЛогикаПроверяетсяОднимУтверждением()
         {
             // Arrange — готовим вход
-            string path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
+            string path = "./Data/sample.tmj";
+
 
             // Act — делаем то, что тестируем
             var map = TiledConverter.Convert(path);

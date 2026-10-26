@@ -2,12 +2,16 @@ using Core.ECS;
 using Core.GameData;
 using Core.Physics.Components;
 using Core.Physics.Systems;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 using Render.Graphics;
+
 using Runtime;
 using Runtime.TIledParse;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -46,10 +50,10 @@ public class Game1 : Game
 
         _world = new World();
         _koza = _world.CreateEntity();
-        Position position = new Position(100, 100);
+        Transform position = new Transform(100, 100);
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
-        Sprite sprite = new Sprite(_manager.LoadTexture(path), 4);
+        Sprite sprite = new Sprite(_manager.LoadTexture(path), 0);
         _world.AddComponent(_koza, position);
         _world.AddComponent(_koza, velocity);
         _world.AddComponent(_koza, sprite);
@@ -59,7 +63,7 @@ public class Game1 : Game
         _mapData = TiledConverter.Convert(path);
         MapLoader.LoadMap(_mapData, _world, _manager);
 
-        List<Entity> entities = _world.GetRenderList();        
+        List<Entity> entities = _world.GetRenderList();
 
     }
 
