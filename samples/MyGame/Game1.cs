@@ -56,7 +56,7 @@ public class Game1 : Game
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
         InputComponent inputComponent = new InputComponent(200f);
-        Sprite sprite = new Sprite(_manager.LoadTexture(path));
+        Sprite sprite = new Sprite(_manager.LoadTexture(path), 3);
         _world.AddComponent(_koza, position);
         _world.AddComponent(_koza, velocity);
         _world.AddComponent(_koza, sprite);
@@ -83,13 +83,13 @@ public class Game1 : Game
             Exit();
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (_inputManager.IsActionPressed("Interact"))
+        /*if (_inputManager.IsActionPressed("Interact"))
         {
             string path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
             path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
             _mapData = TiledConverter.Convert(path);
             _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
-        }
+        }*/
 
         _world.Update(dt);
         base.Update(gameTime);
