@@ -55,12 +55,16 @@ public class Game1 : Game
 
         _world = new World();
         _koza = _world.CreateEntity();
-        Transform position = new Transform(100, 100);
+
+        Core.Math.Vector2 position = new Core.Math.Vector2(100, 100);
+        Core.Math.Vector2 scale = new Core.Math.Vector2(1, 1.5f);
+        Transform transform = new Transform(position, MathHelper.ToRadians(30f), scale);
+
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
         InputComponent inputComponent = new InputComponent(200f);
-        Sprite sprite = new Sprite(_manager.LoadTexture(path));
-        _world.AddComponent(_koza, position);
+        Sprite sprite = new Sprite(_manager.LoadTexture(path), 4);
+        _world.AddComponent(_koza, transform);
         _world.AddComponent(_koza, velocity);
         _world.AddComponent(_koza, sprite);
         _world.AddComponent(_koza, inputComponent);
@@ -71,9 +75,9 @@ public class Game1 : Game
 
         path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
         _mapData = TiledConverter.Convert(path);
-        MapLoader.LoadMap(_mapData, _world, _manager);
 
-        List<Entity> entities = _world.GetRenderList();
+        Transform mapTransform = new Transform(0, 0);
+        MapLoader.LoadMap(_mapData, _world, _manager, mapTransform);
 
     }
 
@@ -89,7 +93,6 @@ public class Game1 : Game
             string path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
             path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
             _mapData = TiledConverter.Convert(path);
-            _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
         }
 
         _world.Update(dt);

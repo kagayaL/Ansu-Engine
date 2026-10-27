@@ -1,6 +1,7 @@
 ﻿using Core.ECS;
 using Core.GameData.TileMap;
 using Core.Physics.Components;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,10 @@ namespace Runtime;
 public class MapLoader
 {
     private static int _tilesetId = 0;
-    public static void LoadMap(MapData mapData, World world, ResourceManager resource)
+    public static void LoadMap(MapData mapData, World world, ResourceManager resource, Transform? transform = null)
     {
+        Transform mapTransform = transform ?? Transform.Default;
+
         _tilesetId = resource.LoadTileset(mapData.TilesetsData);
         int depth = 0;
 
@@ -25,7 +28,7 @@ public class MapLoader
                 case LayerType.Object:
                     continue;
                 case LayerType.Tile:
-                    LoadTileLayer(world, layer, mapData, depth++);
+                    LoadTileLayer(world, layer, mapData, depth++, mapTransform);
                     break;
                 default:
                     break;
@@ -36,7 +39,7 @@ public class MapLoader
         }
     }
 
-    private static void LoadTileLayer(World world, LayerData tileLayer, MapData mapData, int depth)
+    private static void LoadTileLayer(World world, LayerData tileLayer, MapData mapData, int depth, Transform mapTransform)
     {
 
         TileMapComponent tileMapComponent = new TileMapComponent
@@ -49,11 +52,10 @@ public class MapLoader
             Layer = depth
         };
 
-        Transform zeroPosition = new Transform();
         Entity layerEntity = world.CreateEntity();
 
         world.AddComponent(layerEntity, tileMapComponent);
-        world.AddComponent(layerEntity, zeroPosition);
+        world.AddComponent(layerEntity, mapTransform);
 
     }
 }

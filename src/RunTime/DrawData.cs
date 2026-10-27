@@ -28,9 +28,9 @@ internal class DrawData : IComparable<DrawData>
         if (this == other) return 0;
 
         if (this.Layer > other.Layer) return 1;
-        if (this.Layer == other.Layer) return -1;
+        if (this.Layer == other.Layer) return 0;
         
-        return 0;
+        return -1;
     }
 }
 

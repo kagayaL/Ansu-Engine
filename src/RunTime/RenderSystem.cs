@@ -95,6 +95,9 @@ public class RenderSystem
         _drawList.Sort();
     }
 
+    /*  public void DrawSprite(Texture2D tex, Vector2 pos, float rotation, Vector2 origin, Rectangle? src = null,
+    Color? tint = null, Vector2? scale = null, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)*/
+
     private void DrawSprite(DrawData sprite)
     {
         if (sprite.Sprite == null) return;
@@ -103,18 +106,21 @@ public class RenderSystem
 
         if (texture == null) return;
 
-        Vector2 transform = CoreToMonogame.ConvertVector2(sprite.Transformed.Position);
-        Rectangle? rect = CoreToMonogame.ConvertRectangle(sprite.Sprite.Value.SourceRect);
+        Vector2 position = CoreToMonogame.ConvertVector2(sprite.Transformed.Position);
+        Vector2 scale = CoreToMonogame.ConvertVector2(sprite.Transformed.Scale);
+        Rectangle? rectangle = CoreToMonogame.ConvertRectangle(sprite.Sprite.Value.SourceRect);
 
-        _renderer.DrawSprite(texture, transform, rect);
+        _renderer.DrawSprite(texture, position, sprite.Transformed.Rotation, new Vector2(0.5f, 0.5f), rectangle, scale);
     }
 
     private void DrawTileLayer(DrawData tileLayer)
     {
-        Console.WriteLine("draw layer");
         if (tileLayer.TileMapComponent == null) return;
 
         TileMapComponent? layer = tileLayer.TileMapComponent;
+
+        Vector2 layerPosition = CoreToMonogame.ConvertVector2(tileLayer.Transformed.Position);
+        Vector2 scale = CoreToMonogame.ConvertVector2(tileLayer.Transformed.Scale);
 
         long[]? grid = layer.Value.Grid;
         if (grid == null) return;
@@ -130,9 +136,10 @@ public class RenderSystem
 
             int col = i % layer.Value.Cols;
             int row = i / layer.Value.Cols;
-            Vector2 pos = new Vector2(col * tileSize, row * tileSize);
+            Vector2 position = new Vector2(col * tileSize, row * tileSize);
+            position += layerPosition;
 
-            _renderer.DrawSprite(texture, pos, rectangle);
+            _renderer.DrawSprite(texture, position, tileLayer.Transformed.Rotation, new Vector2(0.5f, 0.5f), rectangle, scale);
         }
     }
 }

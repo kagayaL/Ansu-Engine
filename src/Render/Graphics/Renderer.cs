@@ -86,7 +86,7 @@ public sealed class Renderer : IDisposable
     }
 
     public void DrawSprite(Texture2D tex, Vector2 pos, float rotation, Vector2 origin, Rectangle? src = null, 
-    Color? tint = null, Vector2? scale = null, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
+    Vector2? scale = null, Color? tint = null,  SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
     {
         Vector2 actualScale = scale ?? Vector2.One;
         int spriteWidth = src.HasValue ? src.Value.Width : tex.Width;
