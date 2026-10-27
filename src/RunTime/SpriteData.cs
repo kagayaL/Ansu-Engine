@@ -20,7 +20,7 @@ internal class DrawData : IComparable<DrawData>
     public TileMapComponent? TileMapComponent {get; set;}
     public DrawType DrawType { get; set; }
     public int Layer { get; set;}
-    public Position Position { get; set; }
+    public Transform Transformed { get; set; }
 
     public int CompareTo(DrawData? other)
     {

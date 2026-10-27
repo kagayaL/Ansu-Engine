@@ -35,7 +35,7 @@ public sealed class EditorActions
         }
         var scene = _document.Scene;
         var entity = scene.World.CreateEntity();
-        scene.World.AddComponent(entity, new Position(0f, 0f));
+        scene.World.AddComponent(entity, new Transform());
 
         scene.World.AddComponent(entity, new NameComponent(name));
 
@@ -83,13 +83,13 @@ public sealed class EditorActions
         {
             return ActionResult.Fail("The entity was not found");
         }
-        if (!world.HasComponent<Position>(entity))
+        if (!world.HasComponent<Transform>(entity))
         {
             return ActionResult.Fail("The entity has not Position");
         }
 
-        ref var pos = ref world.GetComponent<Position>(entity);
-        pos.Coordinates = new Vector2(x, y);
+        ref var pos = ref world.GetComponent<Transform>(entity);
+        pos.Position = new Vector2(x, y);
 
         _document.MarkDirty();
         return ActionResult.Ok();

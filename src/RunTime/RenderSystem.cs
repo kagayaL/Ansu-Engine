@@ -2,10 +2,14 @@
 using Core.GameData;
 using Core.GameData.TileMap;
 using Core.Physics.Components;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
 using Render.Graphics;
+
 using Runtime.TIledParse;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,15 +17,17 @@ using System.Reflection.Emit;
 using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
+
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Runtime;
+
 public class RenderSystem
 {
     private List<DrawData> _drawList = [];
     private Renderer _renderer;
     private ResourceManager _manager;
-    
+
     public RenderSystem(Renderer renderer, ResourceManager manager)
     {
         _renderer = renderer;
@@ -45,9 +51,9 @@ public class RenderSystem
                 default:
                     continue;
             }
-            
+
         }
-        
+
     }
 
     //Из очереди грузим в мой список и сортируем по слою, чтобы правильно рисовать
@@ -76,13 +82,13 @@ public class RenderSystem
             }
 
             DrawData data = new DrawData
-                {
-                    Position = world.GetComponent<Position>(item),
-                    Sprite = sprite,
-                    TileMapComponent = tileMap,
-                    Layer = depth,
-                    DrawType = type
-    
+            {
+                Transformed = world.GetComponent<Transform>(item),
+                Sprite = sprite,
+                TileMapComponent = tileMap,
+                Layer = depth,
+                DrawType = type
+
             };
             _drawList.Add(data);
         }
@@ -97,13 +103,13 @@ public class RenderSystem
 
         if (texture == null) return;
 
-        Vector2 position = CoreToMonogame.ConvertVector2(sprite.Position.Coordinates);
+        Vector2 transform = CoreToMonogame.ConvertVector2(sprite.Transformed.Position);
         Rectangle? rect = CoreToMonogame.ConvertRectangle(sprite.Sprite.Value.SourceRect);
 
-        _renderer.DrawSprite(texture, position, rect);
+        _renderer.DrawSprite(texture, transform, rect);
     }
 
-    private void DrawTileLayer(DrawData tileLayer) 
+    private void DrawTileLayer(DrawData tileLayer)
     {
         Console.WriteLine("draw layer");
         if (tileLayer.TileMapComponent == null) return;

@@ -41,11 +41,11 @@ public class World
 
         // Добавляем в список отрисовки, если собралась пара Position + Sprite
         if ((typeof(T) == typeof(Sprite) || typeof(T) == typeof(TileMapComponent)) &&
-            _store.Has<Position>(entity.Id))
+            _store.Has<Transform>(entity.Id))
         {
             _renderList.Add(entity);
         }
-        else if (typeof(T) == typeof(Position) &&
+        else if (typeof(T) == typeof(Transform) &&
             (_store.Has<Sprite>(entity.Id) || _store.Has<TileMapComponent>(entity.Id)))
         {
             _renderList.Add(entity);
@@ -65,7 +65,7 @@ public class World
     public void RemoveComponent<T>(Entity entity) where T : struct
     {
         // Убираем из отрисовки при удалении любого из трех компонентов
-        if (typeof(T) == typeof(Sprite) || typeof(T) == typeof(Position) ||
+        if (typeof(T) == typeof(Sprite) || typeof(T) == typeof(Transform) ||
            typeof(T) == typeof(TileMapComponent))
         {
             _renderList.Remove(entity);

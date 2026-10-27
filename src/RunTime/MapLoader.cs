@@ -49,7 +49,7 @@ public class MapLoader
             Layer = depth
         };
 
-        Position zeroPosition = new Position(0, 0);
+        Transform zeroPosition = new Transform();
         Entity layerEntity = world.CreateEntity();
 
         world.AddComponent(layerEntity, tileMapComponent);
