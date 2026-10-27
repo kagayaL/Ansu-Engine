@@ -136,7 +136,10 @@ public class RenderSystem
 
             int col = i % layer.Value.Cols;
             int row = i / layer.Value.Cols;
-            Vector2 position = new Vector2(col * tileSize, row * tileSize);
+            Vector2 position = new Vector2( col * tileSize + tileSize * 0.5f, 
+                row * tileSize + tileSize * 0.5f);
+
+            position *= scale;
             position += layerPosition;
 
             _renderer.DrawSprite(texture, position, tileLayer.Transformed.Rotation, new Vector2(0.5f, 0.5f), rectangle, scale);
