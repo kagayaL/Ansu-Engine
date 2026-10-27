@@ -1,8 +1,8 @@
 using Core.ECS;
-using Core.Physics.Components;
 using Editor.Selection;
 using Core.Math;
 using Core.GameData;
+using Core.Physics.Components;
 
 // логика редактора - что можно делать со сценой
 // панели вызывают эти методы, не трогая World
@@ -53,6 +53,20 @@ public sealed class EditorActions
             return compName.Name;
         }
         return "Entity " + entity.Id;
+    }
+
+    public bool HasEntityName(string name)
+    {
+        var names = _document.Scene.World.GetPool<NameComponent>();
+
+        foreach (var compName in names.Values)
+        {
+            if(compName.Name == name)
+            {
+                return true;
+            } 
+        }
+        return false;
     }
 
     public ActionResult DeleteEntity(Entity entity)

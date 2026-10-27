@@ -1,5 +1,6 @@
 using ImGuiNET;
 using Editor.Model;
+using Core.ECS;
 
 namespace Editor.Panels;
 
@@ -57,7 +58,14 @@ public sealed class ToolBarPanel : IPanel
         // Entity
         if (ImGui.MenuItem("Create Entity"))
         {
-            var result = context.Actions.CreateEntity("Test " + DateTime.Now.Ticks);
+            string name = "Entity 1";
+            int cnt = 1;
+            while (context.Actions.HasEntityName(name))
+            {
+                cnt++;
+                name = "Entity " + cnt;
+            }
+            var result = context.Actions.CreateEntity(name);
             if (result.Succeeded)
                 context.Status.Success("Entity created");
             else
