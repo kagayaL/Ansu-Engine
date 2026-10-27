@@ -2,6 +2,8 @@ using Core.ECS;
 using Core.Physics.Components;
 using Editor.Selection;
 using Core.Math;
+using Core.GameData;
+
 // логика редактора - что можно делать со сценой
 // панели вызывают эти методы, не трогая World
 namespace Editor.Model;
@@ -35,9 +37,22 @@ public sealed class EditorActions
         var entity = scene.World.CreateEntity();
         scene.World.AddComponent(entity, new Position(0f, 0f));
 
+        scene.World.AddComponent(entity, new NameComponent(name));
+
         _selection.Select(entity);
         _document.MarkDirty();
         return ActionResult.Ok();
+    }
+
+    public string GetEntityName(Entity entity)
+    {
+        var world = _document.Scene.World;
+        if (world.HasComponent<NameComponent>(entity))
+        {
+            var compName = world.GetComponent<NameComponent>(entity);
+            return compName.Name;
+        }
+        return "Entity " + entity.Id;
     }
 
     public ActionResult DeleteEntity(Entity entity)

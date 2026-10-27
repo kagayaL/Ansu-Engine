@@ -2,9 +2,6 @@ using ImGuiNET;
 using Editor.Model;
 using Core.Physics.Components;
 using Core.ECS;
-using System.Linq;
-using System.Reflection.Metadata;
-using Microsoft.VisualBasic;
 
 namespace Editor.Panels;
 
@@ -19,7 +16,7 @@ public sealed class HierarchyPanel : IPanel
             new System.Numerics.Vector2(0, Constants.ToolbarHeight),
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(Constants.HierarchyWidth, Constants.ToolbarHeight - (windowHeight - Constants.StatusBarHeight)),
+            new System.Numerics.Vector2(Constants.HierarchyWidth, windowHeight - Constants.StatusBarHeight - Constants.ToolbarHeight),
             ImGuiCond.Always);
 
         ImGuiWindowFlags flags =
@@ -47,7 +44,8 @@ public sealed class HierarchyPanel : IPanel
 
                 bool isSelected = context.Selection.IsSelected(entity);
 
-                string label = "Entity " + entityID + "##" + i;
+                string name = context.Actions.GetEntityName(entity);
+                string label = name + "##entity_" + entityID;
 
                 if (ImGui.Selectable(label, isSelected))
                 {
