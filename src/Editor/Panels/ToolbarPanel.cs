@@ -56,20 +56,39 @@ public sealed class ToolBarPanel : IPanel
             ImGui.EndMenu();
         }
         // Entity
-        if (ImGui.MenuItem("Create Entity"))
-        {
-            string name = "Entity 1";
-            int cnt = 1;
-            while (context.Actions.HasEntityName(name))
+        if (ImGui.BeginMenu("Entity"))
+        {            
+            if (ImGui.MenuItem("Create Entity"))
             {
-                cnt++;
-                name = "Entity " + cnt;
+                string name = "Entity 1";
+                int cnt = 1;
+                while (context.Actions.HasEntityName(name))
+                {
+                    cnt++;
+                    name = "Entity " + cnt;
+                }
+                var result = context.Actions.CreateEntity(name);
+                if (result.Succeeded)
+                    context.Status.Success("Entity created");
+                else
+                    context.Status.Error(result.Error ?? "Failed");
             }
-            var result = context.Actions.CreateEntity(name);
-            if (result.Succeeded)
-                context.Status.Success("Entity created");
-            else
-                context.Status.Error(result.Error ?? "Failed");
+
+            var selected = context.Selection.Selected;
+            bool canDelete = selected != null;
+            if (!canDelete) ImGui.BeginDisabled();
+
+            if (ImGui.MenuItem("Delete Entity"))
+            {   
+                var result = context.Actions.DeleteEntity(selected!.Value);
+                if (result.Succeeded)
+                    context.Status.Success("Entity deleted");
+                else
+                    context.Status.Error(result.Error ?? "Failed");
+            }   
+            if (!canDelete) ImGui.EndDisabled();
+
+            ImGui.EndMenu();  
         }
         ImGui.EndMainMenuBar();
     }
