@@ -43,7 +43,12 @@ public class ResourceManager : IDisposable
         return _textureId++;
 
     }
-
+    //если передаем просто текстуру, то проверки не нужны
+    public int LoadTexture(Texture2D texture)
+    {
+        _textureById[_textureId] = texture;
+        return _textureId++;
+    }
     //добавляет в словарь _tilesetById пару вида id - TilesetRegistry
     public int LoadTileset(List<TilesetData>? tilesetData)
     {
@@ -101,7 +106,18 @@ public class ResourceManager : IDisposable
         _tilesetsById.Clear();
 
     }
+    public void DisposeTilesets()
+    {
+        foreach (var registry in _tilesetsById.Values)
+        {
+            registry.Dispose();
+        }
+
+        _tilesetsById.Clear();
+    }
+    
 }
+
 
 public class TilesetRegistry : IDisposable
 {
@@ -152,7 +168,7 @@ public class TilesetRegistry : IDisposable
                 rectangle = new Rectangle(x, y, tileset.TileWidth, tileset.TileHeight);
                 return texture;
             }
-        }
+        }   
         rectangle = Rectangle.Empty;
         return null;
     }
