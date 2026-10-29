@@ -108,41 +108,66 @@ public class RenderSystem
 
         Vector2 position = CoreToMonogame.ConvertVector2(sprite.Transformed.Position);
         Vector2 scale = CoreToMonogame.ConvertVector2(sprite.Transformed.Scale);
+        Vector2 origin = CoreToMonogame.ConvertVector2(sprite.Transformed.Origin);
         Rectangle? rectangle = CoreToMonogame.ConvertRectangle(sprite.Sprite.Value.SourceRect);
 
-        _renderer.DrawSprite(texture, position, sprite.Transformed.Rotation, new Vector2(0.5f, 0.5f), rectangle, scale);
+        _renderer.DrawSprite(texture, position, sprite.Transformed.Rotation, origin, rectangle, scale);
     }
 
     private void DrawTileLayer(DrawData tileLayer)
     {
         if (tileLayer.TileMapComponent == null) return;
 
-        TileMapComponent? layer = tileLayer.TileMapComponent;
+        TileMapComponent layer = tileLayer.TileMapComponent.Value;
+        Transform t = tileLayer.Transformed;
 
-        Vector2 layerPosition = CoreToMonogame.ConvertVector2(tileLayer.Transformed.Position);
-        Vector2 scale = CoreToMonogame.ConvertVector2(tileLayer.Transformed.Scale);
-
-        long[]? grid = layer.Value.Grid;
+        long[]? grid = layer.Grid;
         if (grid == null) return;
 
-        int tileSize = layer.Value.TileSize;
+        int tileSize = layer.TileSize;
+
+        // Всё считаем в Monogame-координатах
+        float scaleX = t.Scale.X;
+        float scaleY = t.Scale.Y;
+        float rotation = t.Rotation;
+        float cos = MathF.Cos(rotation);
+        float sin = MathF.Sin(rotation);
+        Vector2 layerPos = CoreToMonogame.ConvertVector2(t.Position);
+        Vector2 spriteScale = new Vector2(scaleX, scaleY);
+        Vector2 centerOrigin = new Vector2(0.5f, 0.5f);   // origin в центре тайла
 
         for (int i = 0; i < grid.Length; i++)
         {
             Rectangle rectangle;
-            Texture2D? texture = _manager.GetTexture(layer.Value.TilesetsId, grid[i], out rectangle);
-
+            Texture2D? texture = _manager.GetTexture(layer.TilesetsId, grid[i], out rectangle);
             if (texture == null) continue;
 
-            int col = i % layer.Value.Cols;
-            int row = i / layer.Value.Cols;
-            Vector2 position = new Vector2( col * tileSize + tileSize * 0.5f, 
-                row * tileSize + tileSize * 0.5f);
+            int col = i % layer.Cols;
+            int row = i / layer.Cols;
 
-            position *= scale;
-            position += layerPosition;
+            // 1. Локальный центр тайла (в координатах слоя, без трансформа)
+            float localCx = col * tileSize + tileSize * 0.5f;
+            float localCy = row * tileSize + tileSize * 0.5f;
 
-            _renderer.DrawSprite(texture, position, tileLayer.Transformed.Rotation, new Vector2(0.5f, 0.5f), rectangle, scale);
+            // 2. Масштаб
+            float scx = localCx * scaleX;
+            float scy = localCy * scaleY;
+
+            // 3. Поворот вокруг (0,0) слоя
+            float rcx = scx * cos - scy * sin;
+            float rcy = scx * sin + scy * cos;
+
+            // 4. Сдвиг
+            Vector2 worldCenter = new Vector2(rcx + layerPos.X, rcy + layerPos.Y);
+
+            // 5. Рисуем
+            _renderer.DrawSprite(
+                texture,
+                worldCenter,      // position = мировой центр тайла
+                rotation,         // поворот слоя
+                centerOrigin,     // origin = (0.5, 0.5) — центр
+                rectangle,
+                spriteScale);
         }
     }
 }

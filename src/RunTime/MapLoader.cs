@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -15,7 +16,9 @@ public class MapLoader
     private static int _tilesetId = 0;
     public static void LoadMap(MapData mapData, World world, ResourceManager resource, Transform? transform = null)
     {
-        Transform mapTransform = transform ?? Transform.Default;
+        Core.Math.Vector2 mapOrigin = new Core.Math.Vector2((float)mapData.Width / 2, (float)mapData.Height / 2);
+        Transform mapTransform = transform ?? new Transform(0, 0, 0, mapOrigin, Core.Math.Vector2.One);
+       
 
         _tilesetId = resource.LoadTileset(mapData.TilesetsData);
         int depth = 0;

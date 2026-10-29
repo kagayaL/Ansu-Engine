@@ -12,7 +12,6 @@ using Runtime;
 using Runtime.TIledParse;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Render.Input;
 using Core.Input;
@@ -25,7 +24,6 @@ public class Game1 : Game
     private Renderer _renderer;
     private MapData _mapData;
     private World _world;
-    private Entity _koza;
     private ResourceManager _manager;
     private RenderSystem _renderSystem;
     public Game1()
@@ -54,20 +52,29 @@ public class Game1 : Game
         
 
         _world = new World();
-        _koza = _world.CreateEntity();
+        Entity koza = _world.CreateEntity();
+        Entity kozel = _world.CreateEntity();
 
         Core.Math.Vector2 position = new Core.Math.Vector2(100, 100);
-        Core.Math.Vector2 scale = new Core.Math.Vector2(1, 1.5f);
+        Core.Math.Vector2 scale = new Core.Math.Vector2(1, 1);
         Transform transform = new Transform(position, MathHelper.ToRadians(30f), scale);
 
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
         InputComponent inputComponent = new InputComponent(200f);
-        Sprite sprite = new Sprite(_manager.LoadTexture(path), 4);
-        _world.AddComponent(_koza, transform);
-        _world.AddComponent(_koza, velocity);
-        _world.AddComponent(_koza, sprite);
-        _world.AddComponent(_koza, inputComponent);
+        Sprite sprite1 = new Sprite(_manager.LoadTexture(path), 4);
+        Sprite sprite2 = new Sprite(_manager.LoadTexture(path), 4);
+
+        _world.AddComponent(koza, transform);
+        _world.AddComponent(koza, velocity);
+        _world.AddComponent(koza, sprite1);
+
+        transform.Position += new Core.Math.Vector2(32, 0);
+        transform.Origin = new Core.Math.Vector2(0.5f, -0.5f);
+        _world.AddComponent(kozel, transform);
+        _world.AddComponent(kozel, sprite2);
+
+        _world.AddComponent(koza, inputComponent);
 
         _world.AddSystem(new InputSystem(new GameInputProvider(_inputManager)));
         _world.AddSystem(new PlayerMovementSystem());
@@ -76,7 +83,7 @@ public class Game1 : Game
         path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
         _mapData = TiledConverter.Convert(path);
 
-        Transform mapTransform = new Transform(0, 0);
+        Transform mapTransform = new Transform(0, 0, MathHelper.ToRadians(10f));
         MapLoader.LoadMap(_mapData, _world, _manager, mapTransform);
 
     }

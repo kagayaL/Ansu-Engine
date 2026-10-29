@@ -18,7 +18,6 @@ public struct Sprite : IComponent
     // Область вырезки на текстуре. null, если рисуется текстура целиком.
     public Rect? SourceRect;
 
-
     // Слой, на котором должен быть отрисован спрайт.
     public int Layer;
 
