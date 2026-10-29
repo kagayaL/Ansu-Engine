@@ -108,12 +108,7 @@ public class ResourceManager : IDisposable
     }
     public void DisposeTilesets()
     {
-        foreach (var registry in _tilesetsById.Values)
-        {
-            registry.Dispose();
-        }
 
-        _tilesetsById.Clear();
     }
     
 }

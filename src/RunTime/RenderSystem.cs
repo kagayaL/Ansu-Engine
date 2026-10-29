@@ -40,14 +40,7 @@ public class RenderSystem
         LoadSprites(world);
         foreach (var drawObject in _drawList)
         {
-            switch (drawObject.DrawType)
-            {
-                case DrawType.Sprite:
-                    DrawSprite(drawObject);
-                    break;
-                default:
-                    continue;
-            }
+            DrawSprite(drawObject);        
         }
     }
     
@@ -61,8 +54,6 @@ public class RenderSystem
         foreach (var item in query)
         {
             Sprite? sprite = null;
-            TileMapComponent? tileMap = null;
-            DrawType type = DrawType.Sprite;
             int depth = 0;
 
             if (world.HasComponent<Sprite>(item))
@@ -75,9 +66,7 @@ public class RenderSystem
             {
                 Transformed = world.GetComponent<Transform>(item),
                 Sprite = sprite,
-                TileMapComponent = tileMap,
-                Layer = depth,
-                DrawType = type
+                Layer = depth
 
             };
             _drawList.Add(data);
