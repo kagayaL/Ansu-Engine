@@ -1,4 +1,5 @@
-﻿using Runtime;
+﻿using Runtime.TIledParse;
+using Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +17,8 @@ namespace Tests.RunTime
         public void Convert_ЛогикаПроверяетсяОднимУтверждением()
         {
             // Arrange — готовим вход
-            string path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
+            string path = "./Data/sample.tmj";
+
 
             // Act — делаем то, что тестируем
             var map = TiledConverter.Convert(path);
@@ -28,8 +30,7 @@ namespace Tests.RunTime
         [Fact]
         public void MapDataTest()
         {
-            string tmjPath = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
-
+            string tmjPath = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true

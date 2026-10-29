@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace Runtime;
 
+
+//Набор информации о карте
 public record class MapData
 {
     [JsonPropertyName("width")] public int Width { get; init; }
@@ -10,6 +12,8 @@ public record class MapData
     [JsonPropertyName("tile_size")] public int TileSize { get; init; }
     [JsonPropertyName("layers")] public List<LayerData>? LayersData { get; init; }
     [JsonPropertyName("tilesets")] public List<TilesetData>? TilesetsData { get; init; }
+    [JsonPropertyName("tilesets_id")] public int TilesetsId { get; set; }
+
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

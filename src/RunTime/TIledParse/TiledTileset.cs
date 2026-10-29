@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Runtime;
+namespace Runtime.TIledParse;
 
+//Данные о тайлсете из tiled
 public record class TiledTileset
 {
     public string Name { get; init; } = "";

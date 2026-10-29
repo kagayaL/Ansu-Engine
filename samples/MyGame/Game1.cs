@@ -166,20 +166,21 @@ public sealed class Game1 : Game
 /*using Core.ECS;
 using Core.GameData;
 using Core.Physics.Components;
-using Core.Physics.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 using Render.Graphics;
 
 using Render.Camera;
 
 using Runtime;
-using Runtime.MapRenderer;
 using Runtime.TIledParse;
+
 using System;
-using System.Collections.Generic;
 using System.IO;
+using Render.Input;
+using Core.Input;
 namespace MyGame;
 
 public class Game1 : Game
@@ -198,7 +199,6 @@ public class Game1 : Game
     private MapData _mapData;
     
     private World _world;
-    private Entity _koza;
     private ResourceManager _manager;
     private RenderSystem _renderSystem;
     private List<(Position, Sprite)> _query;
@@ -253,25 +253,31 @@ public class Game1 : Game
         _manager = new ResourceManager();
         _renderSystem = new RenderSystem(_renderer, _manager);
 
+        
+
         _world = new World();
         _koza = _world.CreateEntity();
 
         Position position = new Position(100, 100);
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
-        Sprite sprite = new Sprite(_manager.LoadTexture(path, GraphicsDevice));
-        _world.AddComponent(_koza, position);
-        _world.AddComponent(_koza, velocity);
-        _world.AddComponent(_koza, sprite);
-        _world.AddSystem(new MovementSystem());
-        _query.Add((_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza)));
+        InputComponent inputComponent = new InputComponent(200f);
+        Sprite sprite1 = new Sprite(_manager.LoadTexture(path), 4);
+        Sprite sprite2 = new Sprite(_manager.LoadTexture(path), 4);
 
+        _world.AddComponent(koza, transform);
+        _world.AddComponent(koza, velocity);
+        _world.AddComponent(koza, sprite1);
 
         _mapRenderer = newMapRenderer();
         path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
         _mapData = TiledConverter.Convert(path);
         _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
 
+        path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
+        LevelLoader.LoadLevel(path, _world, GraphicsDevice, _renderer, _manager);
+        Transform mapTransform = new Transform(0, 0, MathHelper.ToRadians(10f));
+        
     }
 
     protected override void Update(GameTime gameTime)
@@ -330,8 +336,15 @@ public class Game1 : Game
         _cameraFollow.Update(_testPosition, deltaTime);
 
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (_inputManager.IsActionPressed("Interact"))
+        {
+            string path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
+            path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
+            _mapData = TiledConverter.Convert(path);
+        }
+
         _world.Update(dt);
-        _query[0] = (_world.GetComponent<Position>(_koza), _world.GetComponent<Sprite>(_koza));
         base.Update(gameTime);
     }
 

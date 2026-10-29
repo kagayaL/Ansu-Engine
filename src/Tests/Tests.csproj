@@ -21,4 +21,10 @@
 		<ProjectReference Include="..\RunTime\Runtime.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="RunTime\Data\**\*"
+			  Link="Data\%(RecursiveDir)%(Filename)%(Extension)"
+			  CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>
