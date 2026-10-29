@@ -81,11 +81,9 @@ public class Game1 : Game
         _world.AddSystem(new MovementSystem());
 
         path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
-        _mapData = TiledConverter.Convert(path);
-
+        LevelLoader.LoadLevel(path, _world, GraphicsDevice, _renderer, _manager);
         Transform mapTransform = new Transform(0, 0, MathHelper.ToRadians(10f));
-        MapLoader.LoadMap(_mapData, _world, _manager, mapTransform);
-
+        
     }
 
     protected override void Update(GameTime gameTime)

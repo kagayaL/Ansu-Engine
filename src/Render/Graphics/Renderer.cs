@@ -62,9 +62,10 @@ public sealed class Renderer : IDisposable
         _began = false;
     }
 
-    public void Clear(Color color)
+    public void Clear(Color? color = null)
     {
-        _device.Clear(color);
+        Color eraseColor = color ?? Color.Transparent;
+        _device.Clear(eraseColor);
     }
 
     //текстура, позиция где рисуем фигуру в настоящем размере, область где рисуем, нулл=весь экран, цвет, нулл=белый
@@ -85,13 +86,14 @@ public sealed class Renderer : IDisposable
         _batch.Draw(_pixelTexture, destination, color);
     }
 
-    public void DrawSprite(Texture2D tex, Vector2 pos, float rotation, Vector2 origin, Rectangle? src = null, 
+    public void DrawSprite(Texture2D tex, Vector2 pos, float rotation, Vector2? origin = null, Rectangle? src = null, 
     Vector2? scale = null, Color? tint = null,  SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
     {
+        Vector2 actualOrigin = origin ?? new Vector2(0.5f, 0.5f);
         Vector2 actualScale = scale ?? Vector2.One;
         int spriteWidth = src.HasValue ? src.Value.Width : tex.Width;
         int spriteHeight = src.HasValue ? src.Value.Height : tex.Height;
-        Vector2 originInPixels = new Vector2(origin.X * spriteWidth, origin.Y * spriteHeight);
+        Vector2 originInPixels = new Vector2(actualOrigin.X * spriteWidth, actualOrigin.Y * spriteHeight);
         _batch.Draw(texture: tex, position: pos, sourceRectangle: src, color: tint ?? Color.White,
         rotation: rotation, origin: originInPixels, scale: actualScale, effects: effects, layerDepth: layerDepth);
     }
