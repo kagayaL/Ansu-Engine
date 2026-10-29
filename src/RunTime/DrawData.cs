@@ -9,16 +9,9 @@ using Core.GameData.TileMap;
 
 namespace Runtime;
 
-public enum DrawType
-{
-    Sprite,
-    Tilelayer
-}
 internal class DrawData : IComparable<DrawData>
 {
     public Sprite? Sprite { get; set; }
-    public TileMapComponent? TileMapComponent {get; set;}
-    public DrawType DrawType { get; set; }
     public int Layer { get; set;}
     public Transform Transformed { get; set; }
 
