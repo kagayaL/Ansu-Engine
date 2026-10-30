@@ -28,3 +28,26 @@ public class CoreToMonogame
     }
 }
 
+public class MonogameToCore
+{
+    //преобразует прямоугольник из Monogame в прямоугольник из Core
+    public static Core.Math.Rect? ConvertRectangle(Rectangle? rectangleFromMonogame)
+    {
+        if (rectangleFromMonogame == null) return null;
+        
+        float x = rectangleFromMonogame.Value.X;
+        float y = rectangleFromMonogame.Value.Y;
+        float width = (float)rectangleFromMonogame.Value.Width;
+        float height = (float)rectangleFromMonogame.Value.Height;
+
+        Core.Math.Rect rectangle = new Core.Math.Rect(x, y, width, height);
+        
+        return rectangle;
+    }
+
+    //преобразует Vector2 из Monogame в Core
+    public static Vector2 ConvertVector2(Core.Math.Vector2 vectorFromMonogame)
+    {
+        return new(vectorFromMonogame.X, vectorFromMonogame.Y);
+    }
+}
