@@ -10,6 +10,7 @@ using System.Linq;
 using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace Runtime;
 public class LevelLoader
@@ -25,10 +26,10 @@ public class LevelLoader
             switch (layer.Type)
             {
                 case LayerType.Tile:
-                    LoadTilelayer(mapData, layer, world, device, renderer, resources);                    
+                    LoadTileLayer(mapData, layer, world, device, renderer, resources);                    
                     break;
                 case LayerType.Object:
-                    //пока не обрабатываю объекты
+                    LoadObjectLayer(mapData, layer, world, device, renderer, resources);
                     break;
             }
         }
@@ -36,15 +37,37 @@ public class LevelLoader
 
     }
 
-    private static void LoadTilelayer(MapData mapData, LayerData layer, World world,
+    private static void LoadTileLayer(MapData mapData, LayerData layer, World world,
         GraphicsDevice device, Renderer renderer, ResourceManager resources )
     {
         RenderTarget2D bakedLayer = MapBaker.BakeLayer(mapData, layer, device, renderer, resources);
 
         Entity layerEntity = world.CreateEntity();
         Sprite sprite = new Sprite(resources.LoadTexture(bakedLayer));
+        NameComponent name = new NameComponent(layer.Name ?? "");
         world.AddComponent(layerEntity, sprite);
         world.AddComponent(layerEntity, Transform.Default);
+        world.AddComponent(layerEntity, name);
+    }
+
+    private static void LoadObjectLayer(MapData mapData, LayerData layer, World world,
+        GraphicsDevice device, Renderer renderer, ResourceManager resources)
+    {
+        foreach (var obj in layer.Objects ?? []) {
+            if (obj == null || obj.Gid == null) continue;
+
+            long gid = obj.Gid ?? 0;
+
+            Texture2D? spriteTexture = resources.GetTexture(mapData.TilesetsId, gid);
+
+            if (spriteTexture == null) continue;
+            Entity entity = world.CreateEntity();
+            Sprite sprite = new Sprite(resources.LoadTexture(spriteTexture));
+            Core.Math.Vector2 scale = new Core.Math.Vector2(obj.ScaleX, obj.ScaleY);
+            Transform transform = new Transform(obj.X, obj.Y, obj.Rotation, null, scale);
+            world.AddComponent(entity, sprite);
+            world.AddComponent(entity, Transform.Default);
+        }
     }
 
 }

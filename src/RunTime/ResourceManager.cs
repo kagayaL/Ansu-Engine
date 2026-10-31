@@ -76,6 +76,17 @@ public class ResourceManager : IDisposable
         rectangle = Rectangle.Empty;
         return null;
     }
+    //перегрузка для объектных тайлов которым не нужен rectangle
+    public Texture2D? GetTexture(int tilesetId, long gid)
+    {
+        //проверка есть ли текстура
+        if (_tilesetsById.TryGetValue(tilesetId, out TilesetRegistry? registry))
+        {
+            return registry.GetTexture(gid);
+        }
+        return null;
+    }
+
 
     //возвращает текстуру по индексу
     public Texture2D? GetTexture(int textureId)
@@ -130,12 +141,37 @@ public class TilesetRegistry : IDisposable
     {
         foreach (var tileset in tilesetDatas ?? new())
         {
-            if (string.IsNullOrEmpty(tileset.ImageSource)) continue;
-            _textureById[tileset.FirstGid] = Texture2D.FromFile(_graphicsDevice, tileset.ImageSource);
-            _tilesetById[tileset.FirstGid] = tileset;
+            switch(tileset.Type)
+            {
+                case TilesetType.Atlas:
+                    //в атласе точно есть image какой то
+                    if (string.IsNullOrEmpty(tileset.Image!.Source)) continue;
+
+                    _textureById[tileset.FirstGid] = Texture2D.FromFile(_graphicsDevice, tileset.Image.Source);
+                     _tilesetById[tileset.FirstGid] = tileset;
+
+                    break;
+
+                case TilesetType.Collection:
+                    int currentGid = 0;
+                    foreach (var image in tileset.Images ?? [])
+                    {
+                        if (string.IsNullOrEmpty(image.Source)) continue;
+
+                        int firstGid = tileset.FirstGid + currentGid;
+                        _textureById[firstGid] = Texture2D.FromFile(_graphicsDevice, image.Source);
+                        _tilesetById[firstGid] = tileset;
+
+                        currentGid++;
+                    }
+
+                    break;
+
+            }
+            
         }
     }
-
+    //обычные тайлсеты
     public Texture2D? GetTexture(long gid, out Rectangle rectangle)
     {
         //тайл с gid = 0 - пустой тайл
@@ -147,7 +183,6 @@ public class TilesetRegistry : IDisposable
 
         foreach (var tileset in _tilesetById.Values)
         {
-
             if (gid >= tileset.FirstGid && gid <= tileset.LastGid)
             {
                 int localId = (int)gid - tileset.FirstGid;
@@ -167,7 +202,28 @@ public class TilesetRegistry : IDisposable
         rectangle = Rectangle.Empty;
         return null;
     }
-    
+    //перегрузка для единичных тайлсетов (объектных)
+    public Texture2D? GetTexture(long gid)
+    {
+        //тайл с gid = 0 - пустой тайл
+        if (gid == 0)
+        {
+            return null;
+        }
+
+        foreach (var tileset in _tilesetById.Values)
+        {
+            if (gid >= tileset.FirstGid && gid <= tileset.LastGid)
+            {
+                //проверка на существует ли в словаре нужная текстура, чтобы программа не упала
+                if (!_textureById.TryGetValue(tileset.FirstGid, out var texture))
+                    continue;
+
+                return texture;
+            }
+        }
+        return null;
+    }
 
     public void Dispose()
     {
