@@ -103,8 +103,9 @@ public static class TiledConverter
             var tileset = FindTileset(o.Gid & GID_MASK, tilesets);
             if (tileset is null) continue;
 
-            float scaleX = o.X / tileset.TileWidth;
-            float scaleY = o.Y / tileset.TileHeight;
+            Console.WriteLine($"{o.Width} - o {tileset.TileWidth} - tile");
+            float scaleX = o.Width / 626;
+            float scaleY = o.Height / 626;
 
             objects.Add(new ObjectData
             {

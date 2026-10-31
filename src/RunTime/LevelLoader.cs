@@ -64,9 +64,13 @@ public class LevelLoader
             Entity entity = world.CreateEntity();
             Sprite sprite = new Sprite(resources.LoadTexture(spriteTexture));
             Core.Math.Vector2 scale = new Core.Math.Vector2(obj.ScaleX, obj.ScaleY);
-            Transform transform = new Transform(obj.X, obj.Y, obj.Rotation, null, scale);
+            Core.Math.Vector2 origin = new Core.Math.Vector2(0, 1);
+            float rotate = MathHelper.ToRadians(obj.Rotation);
+            Console.WriteLine($"{scale.X} {scale.Y} - scales {obj.Rotation} - ratate");
+           
+            Transform transform = new Transform(obj.X, obj.Y, rotate, origin, scale);
             world.AddComponent(entity, sprite);
-            world.AddComponent(entity, Transform.Default);
+            world.AddComponent(entity, transform);
         }
     }
 

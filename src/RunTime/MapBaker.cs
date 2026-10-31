@@ -46,7 +46,7 @@ public class MapBaker
             int col = i % layer.Cols;
             int row = i / layer.Cols;
             Vector2 position = new Vector2(col * tileSize, row * tileSize);
-            renderer.DrawSprite(texture, position, 0f, null, rectangle);
+            renderer.DrawSprite(texture, position, 0f, Vector2.Zero, rectangle);
         }
 
         renderer.End();
