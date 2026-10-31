@@ -40,7 +40,7 @@ public class RenderSystem
         LoadSprites(world);
         foreach (var drawObject in _drawList)
         {
-            DrawSprite(drawObject);     
+            DrawSprite(drawObject);        
         }
     }
     
@@ -54,7 +54,6 @@ public class RenderSystem
         foreach (var item in query)
         {
             Sprite? sprite = null;
-            TileMapComponent? tileMap = null;
             int depth = 0;
 
             if (world.HasComponent<Sprite>(item))
@@ -67,7 +66,7 @@ public class RenderSystem
             {
                 Transformed = world.GetComponent<Transform>(item),
                 Sprite = sprite,
-                Layer = depth,
+                Layer = depth
 
             };
             _drawList.Add(data);
