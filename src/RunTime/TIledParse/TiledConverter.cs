@@ -100,12 +100,13 @@ public static class TiledConverter
 
         foreach (var o in obj.Objects ?? new())
         {
-            var tileset = FindTileset(o.Gid & GID_MASK, tilesets);
-            if (tileset is null) continue;
+            Console.WriteLine("go");
+            FindScales(o.Gid & GID_MASK, tilesets, out var x, out var y);
+            if (x * y == 0) continue;
 
-            Console.WriteLine($"{o.Width} - o {tileset.TileWidth} - tile");
-            float scaleX = o.Width / 626;
-            float scaleY = o.Height / 626;
+            Console.WriteLine($"out");
+            float scaleX = o.Width / x;
+            float scaleY = o.Height / y;
 
             objects.Add(new ObjectData
             {
@@ -134,18 +135,37 @@ public static class TiledConverter
     }
 
     //ищем тайлсет которому принадлежит gid для скейлов
-    private static TilesetData? FindTileset(long? gid, List<TilesetData>? tilesets)
+    private static void FindScales(long? gid, List<TilesetData>? tilesets, out float x, out float y)
     {
-        if (gid is null) return null;
+        x = 0;
+        y = 0;
+        if (gid is null) return;
 
         foreach (var tileset in tilesets ?? [])
         {
             if (gid >= tileset.FirstGid &&  gid <= tileset.LastGid)
             {
-                return tileset;
+                switch (tileset.Type)
+                {
+                    case Runtime.TilesetType.Collection:
+                        int ind = (int)gid! - tileset.FirstGid;
+
+                        if (tileset.Images is null || 
+                            ind >= tileset.Images.Count()) return;
+                        x = tileset.Images[ind].Width;
+                        y = tileset.Images[ind].Height;
+                        return;
+
+                    case Runtime.TilesetType.Atlas:
+                        x = tileset.TileWidth;
+                        y = tileset.TileHeight;
+                        return;
+
+                }
+                
             }
         }
-        return null;
+        return;
     }
 
     private static TilesetData ParseAtlas(TiledTileset tiledTileset, Tileset tileset, string mapDir)

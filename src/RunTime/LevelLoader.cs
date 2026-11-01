@@ -53,22 +53,26 @@ public class LevelLoader
     private static void LoadObjectLayer(MapData mapData, LayerData layer, World world,
         GraphicsDevice device, Renderer renderer, ResourceManager resources)
     {
+
         foreach (var obj in layer.Objects ?? []) {
+
             if (obj == null || obj.Gid == null) continue;
 
             long gid = obj.Gid ?? 0;
-
-            Texture2D? spriteTexture = resources.GetTexture(mapData.TilesetsId, gid);
+            Texture2D? spriteTexture = resources.GetTexture(mapData.TilesetsId, gid, out var rect);
 
             if (spriteTexture == null) continue;
+
             Entity entity = world.CreateEntity();
-            Sprite sprite = new Sprite(resources.LoadTexture(spriteTexture));
+            Sprite sprite = new Sprite(resources.LoadTexture(spriteTexture), 0,
+                MonogameToCore.ConvertRectangle(rect));
+
             Core.Math.Vector2 scale = new Core.Math.Vector2(obj.ScaleX, obj.ScaleY);
             Core.Math.Vector2 origin = new Core.Math.Vector2(0, 1);
-            float rotate = MathHelper.ToRadians(obj.Rotation);
-            Console.WriteLine($"{scale.X} {scale.Y} - scales {obj.Rotation} - ratate");
-           
+
+            float rotate = MathHelper.ToRadians(obj.Rotation);           
             Transform transform = new Transform(obj.X, obj.Y, rotate, origin, scale);
+
             world.AddComponent(entity, sprite);
             world.AddComponent(entity, transform);
         }

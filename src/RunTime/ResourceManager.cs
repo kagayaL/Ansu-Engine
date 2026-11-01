@@ -1,7 +1,8 @@
 ﻿using Core.GameData;
 using Core.Physics.Components;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Runtime.TIledParse;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -66,7 +67,7 @@ public class ResourceManager : IDisposable
             registry.Dispose();
     }
 
-    public Texture2D? GetTexture(int tilesetId, long gid, out Rectangle rectangle)
+    public Texture2D? GetTexture(int tilesetId, long gid, out Rectangle? rectangle)
     {
         //проверка есть ли текстура
         if (_tilesetsById.TryGetValue(tilesetId, out TilesetRegistry? registry))
@@ -76,17 +77,6 @@ public class ResourceManager : IDisposable
         rectangle = Rectangle.Empty;
         return null;
     }
-    //перегрузка для объектных тайлов которым не нужен rectangle
-    public Texture2D? GetTexture(int tilesetId, long gid)
-    {
-        //проверка есть ли текстура
-        if (_tilesetsById.TryGetValue(tilesetId, out TilesetRegistry? registry))
-        {
-            return registry.GetTexture(gid);
-        }
-        return null;
-    }
-
 
     //возвращает текстуру по индексу
     public Texture2D? GetTexture(int textureId)
@@ -172,7 +162,7 @@ public class TilesetRegistry : IDisposable
         }
     }
     //обычные тайлсеты
-    public Texture2D? GetTexture(long gid, out Rectangle rectangle)
+    public Texture2D? GetTexture(long gid, out Rectangle? rectangle)
     {
         //тайл с gid = 0 - пустой тайл
         if (gid == 0)
@@ -185,44 +175,36 @@ public class TilesetRegistry : IDisposable
         {
             if (gid >= tileset.FirstGid && gid <= tileset.LastGid)
             {
-                int localId = (int)gid - tileset.FirstGid;
-                int col = localId % tileset.Columns;
-                int row = localId / tileset.Columns;
-                int x = tileset.Margin + col * (tileset.TileWidth + tileset.Spacing);
-                int y = tileset.Margin + row * (tileset.TileHeight + tileset.Spacing);
-
-                //проверка на существует ли в словаре нужная текстура, чтобы программа не упала
-                if (!_textureById.TryGetValue(tileset.FirstGid, out var texture))
-                    continue;
-
-                rectangle = new Rectangle(x, y, tileset.TileWidth, tileset.TileHeight);
-                return texture;
+                return tileset.Type switch
+                {
+                    TilesetType.Atlas => ResolveAtlas(tileset, (int)gid, out rectangle),
+                    TilesetType.Collection => ResolveCollection(tileset, (int)gid, out rectangle),
+                    _ => throw new InvalidOperationException($"Unknown tileset type - {tileset.Type}")
+                };
+                
             }
         }   
         rectangle = Rectangle.Empty;
         return null;
     }
-    //перегрузка для единичных тайлсетов (объектных)
-    public Texture2D? GetTexture(long gid)
+
+    private Texture2D? ResolveAtlas(TilesetData tileset, int gid, out Rectangle? rect)
     {
-        //тайл с gid = 0 - пустой тайл
-        if (gid == 0)
-        {
-            return null;
-        }
+        int localId = gid - tileset.FirstGid;
+        int col = localId % tileset.Columns;
+        int row = localId / tileset.Columns;
+        int x = tileset.Margin + col * (tileset.TileWidth + tileset.Spacing);
+        int y = tileset.Margin + row * (tileset.TileHeight + tileset.Spacing);
 
-        foreach (var tileset in _tilesetById.Values)
-        {
-            if (gid >= tileset.FirstGid && gid <= tileset.LastGid)
-            {
-                //проверка на существует ли в словаре нужная текстура, чтобы программа не упала
-                if (!_textureById.TryGetValue(tileset.FirstGid, out var texture))
-                    continue;
+        rect = new Rectangle(x, y, tileset.TileWidth, tileset.TileHeight);
 
-                return texture;
-            }
-        }
-        return null;
+        return _textureById.TryGetValue(tileset.FirstGid, out var tex) ? tex : null;
+    }
+
+    private Texture2D? ResolveCollection(TilesetData tileset, int gid, out Rectangle? rect)
+    {
+        rect = null;
+        return _textureById.TryGetValue(gid, out var tex) ? tex : null;
     }
 
     public void Dispose()

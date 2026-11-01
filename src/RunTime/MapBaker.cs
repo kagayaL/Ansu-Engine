@@ -38,7 +38,7 @@ public class MapBaker
         int gridLength = grid == null ? 0 : grid.Length;
         for (int i = 0; i < gridLength; i++)
         {
-            Rectangle rectangle;
+            Rectangle? rectangle;
             Texture2D? texture = resources.GetTexture(mapData.TilesetsId, grid![i], out rectangle);
 
             if (texture == null) continue;
