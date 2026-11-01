@@ -15,6 +15,8 @@ using Microsoft.Xna.Framework;
 namespace Runtime;
 public class LevelLoader
 {
+    //глубина слоя
+    private static int depth = 0;
     public static void LoadLevel(string tmjPath, World world, GraphicsDevice device,
         Renderer renderer, ResourceManager resources)
     {
@@ -32,9 +34,15 @@ public class LevelLoader
                     LoadObjectLayer(mapData, layer, world, device, renderer, resources);
                     break;
             }
+            depth++;
         }
-        resources.DisposeTilesets();
+        depth = 0;
 
+    }
+
+    public static void UnloadLevel(MapData mapData, ResourceManager resources)
+    {
+        resources.UnloadTileset(mapData.TilesetsId);
     }
 
     private static void LoadTileLayer(MapData mapData, LayerData layer, World world,
@@ -43,7 +51,7 @@ public class LevelLoader
         RenderTarget2D bakedLayer = MapBaker.BakeLayer(mapData, layer, device, renderer, resources);
 
         Entity layerEntity = world.CreateEntity();
-        Sprite sprite = new Sprite(resources.LoadTexture(bakedLayer));
+        Sprite sprite = new Sprite(resources.LoadTexture(bakedLayer), depth);
         NameComponent name = new NameComponent(layer.Name ?? "");
         world.AddComponent(layerEntity, sprite);
         world.AddComponent(layerEntity, Transform.Default);
@@ -59,12 +67,13 @@ public class LevelLoader
             if (obj == null || obj.Gid == null) continue;
 
             long gid = obj.Gid ?? 0;
-            Texture2D? spriteTexture = resources.GetTexture(mapData.TilesetsId, gid, out var rect);
+            Texture2D? spriteTexture = resources.GetTexture(mapData.TilesetsId,
+                gid & GidResolver.GID_MASK, out var rect);
 
             if (spriteTexture == null) continue;
 
             Entity entity = world.CreateEntity();
-            Sprite sprite = new Sprite(resources.LoadTexture(spriteTexture), 0,
+            Sprite sprite = new Sprite(resources.LoadTexture(spriteTexture), depth,
                 MonogameToCore.ConvertRectangle(rect));
 
             Core.Math.Vector2 scale = new Core.Math.Vector2(obj.ScaleX, obj.ScaleY);

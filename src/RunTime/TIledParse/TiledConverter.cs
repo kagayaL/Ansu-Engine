@@ -15,8 +15,6 @@ namespace Runtime.TIledParse;
 //Конвретация map.tmj в MapData
 public static class TiledConverter
 {
-    private const uint GID_MASK = 0x0FFFFFFF;
-
     //Конвертирует tmj файл в мою структуру MapData.
     public static MapData Convert(string tmjPath)
     {
@@ -80,7 +78,7 @@ public static class TiledConverter
 
         for (int i = 0; i < grid.Length; i++)
         {
-            grid[i] = data[i] & GID_MASK;
+            grid[i] = data[i];
         }
 
         return new LayerData
@@ -101,7 +99,7 @@ public static class TiledConverter
         foreach (var o in obj.Objects ?? new())
         {
             Console.WriteLine("go");
-            FindScales(o.Gid & GID_MASK, tilesets, out var x, out var y);
+            FindScales(o.Gid & GidResolver.GID_MASK, tilesets, out var x, out var y);
             if (x * y == 0) continue;
 
             Console.WriteLine($"out");
@@ -111,7 +109,7 @@ public static class TiledConverter
             objects.Add(new ObjectData
             {
                 Name = o.Name,
-                Gid = o.Gid & GID_MASK,
+                Gid = o.Gid,
                 Height = o.Height,
                 Width = o.Width,
                 Rotation = o.Rotation,
