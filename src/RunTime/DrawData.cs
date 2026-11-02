@@ -11,7 +11,7 @@ namespace Runtime;
 
 internal class DrawData : IComparable<DrawData>
 {
-    public Sprite? Sprite { get; set; }
+    public Sprite Sprite { get; set; }
     public int Layer { get; set;}
     public Transform Transformed { get; set; }
 
