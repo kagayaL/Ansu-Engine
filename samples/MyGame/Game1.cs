@@ -351,7 +351,7 @@ public class Game1 : Game
        
 
         // В) ECS Сущности (код сокомандников)
-        _renderSystem.DrawRenderList(_world);
+        _renderSystem.DrawRenderList(_world, _viewport);
 
         // 3. ОДИН End на весь кадр
         _graphics.Renderer.End();

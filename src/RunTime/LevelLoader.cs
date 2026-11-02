@@ -70,11 +70,12 @@ public class LevelLoader
             Texture2D? spriteTexture = resources.GetTexture(mapData.TilesetsId,
                 gid & GidResolver.GID_MASK, out var rect);
 
-            if (spriteTexture == null) continue;
+            if (spriteTexture is null) continue;
 
             Entity entity = world.CreateEntity();
             Sprite sprite = new Sprite(resources.LoadTexture(spriteTexture), depth,
                 MonogameToCore.ConvertRectangle(rect));
+
 
             Core.Math.Vector2 scale = new Core.Math.Vector2(obj.ScaleX, obj.ScaleY);
             Core.Math.Vector2 origin = new Core.Math.Vector2(0, 1);
