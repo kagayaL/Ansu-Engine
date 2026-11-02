@@ -40,7 +40,7 @@ public class RenderSystem
         LoadSprites(world);
         foreach (var drawObject in _drawList)
         {
-            DrawSprite(drawObject);        
+            DrawSprite(drawObject);     
         }
     }
     
@@ -66,7 +66,7 @@ public class RenderSystem
             {
                 Transformed = world.GetComponent<Transform>(item),
                 Sprite = sprite,
-                Layer = depth
+                Layer = depth,
 
             };
             _drawList.Add(data);
