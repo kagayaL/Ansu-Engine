@@ -98,11 +98,9 @@ public static class TiledConverter
 
         foreach (var o in obj.Objects ?? new())
         {
-            Console.WriteLine("go");
             FindScales(o.Gid & GidResolver.GID_MASK, tilesets, out var x, out var y);
             if (x * y == 0) continue;
 
-            Console.WriteLine($"out");
             float scaleX = o.Width / x;
             float scaleY = o.Height / y;
 
