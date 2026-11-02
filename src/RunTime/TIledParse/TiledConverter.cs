@@ -1,14 +1,16 @@
-﻿using System;
-using System.IO;
+﻿using Core.GameData.TileMap;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
-using System.Reflection.Metadata.Ecma335;
+using static System.Net.Mime.MediaTypeNames;
 
-namespace Runtime.TIledParse;  
+namespace Runtime.TIledParse;
 
 //Конвретация map.tmj в MapData
 public static class TiledConverter
@@ -22,9 +24,33 @@ public static class TiledConverter
         string json = File.ReadAllText(tmjPath);
         var tiled = JsonSerializer.Deserialize<TiledFormat>(json)
         ?? throw new InvalidDataException("Неправильный файл " + tmjPath);
-        var layers = new List<LayerData>();
+        
+        //========================= заполняем тайлсеты ==============================
+        var tilesets = new List<TilesetData>();
+        foreach (var tileset in tiled.TileSets ?? new())
+        {
+            if (tileset.Source == null) continue;
 
-        foreach(var layer in tiled.Layers ?? new())
+
+            // если source не null, то и mapDir не null
+            string tsxPath = Path.Combine(mapDir!, tileset.Source);
+            TiledTileset? tiledTileset = TiledTileset.Load(tsxPath);
+            if (tiledTileset == null) continue;
+
+            switch (tiledTileset.Type)
+            {
+                case TilesetType.Atlas:
+                    tilesets.Add(ParseAtlas(tiledTileset, tileset, mapDir!));
+                    break;
+                case TilesetType.Collection:
+                    tilesets.Add(ParseCollection(tiledTileset, tileset, mapDir!));
+                    break;
+            }
+        }
+
+        //======================= заполняем слои ==========================================
+        var layers = new List<LayerData>();
+        foreach (var layer in tiled.Layers ?? new())
         {
             switch (layer.Type)
             {
@@ -32,43 +58,11 @@ public static class TiledConverter
                     layers.Add(ConvertTile(layer));
                     break;
                 case "objectgroup":
-                    layers.Add(ConvertObject(layer));
+                    layers.Add(ConvertObject(layer, tilesets));
                     break;
             }
         }
 
-        var tilesets = new List<TilesetData>();
-        foreach(var tileset in tiled.TileSets ?? new())
-        {
-            if (tileset.Source == null) continue;
-
-            // если source не null, то и mapDir не null
-            string tsxPath = Path.Combine(mapDir!, tileset.Source);
-            TiledTileset? tiledTileset = TiledTileset.Load(tsxPath);
-            if (tiledTileset == null) continue;
-
-            string imagePath = Path.Combine(mapDir!, tiledTileset.ImageSource);
-
-
-            tilesets.Add(new TilesetData
-            {
-                FirstGid = tileset.FirstGid,
-                LastGid = tileset.FirstGid + tiledTileset.TileCount - 1,
-                Source = tileset.Source,
-                Name = tiledTileset.Name,
-                TileWidth = tiledTileset.TileWidth,
-                TileHeight = tiledTileset.TileHeight,
-                TileCount = tiledTileset.TileCount,
-                Columns = tiledTileset.Columns,
-                Margin = tiledTileset.Margin,
-                Spacing = tiledTileset.Spacing,
-                ImageSource = imagePath,
-                ImageHeight = tiledTileset.ImageHeight,
-                ImageWidth = tiledTileset.ImageWidth
-
-
-            });
-        }
         return new MapData
         {
             Height = tiled.Height,
@@ -100,12 +94,18 @@ public static class TiledConverter
         };
 
     }
-    private static LayerData ConvertObject(TiledLayer obj)
+    private static LayerData ConvertObject(TiledLayer obj, List<TilesetData>? tilesets)
     {
         var objects = new List<ObjectData>();
 
-        foreach(var o in obj.Objects ?? new())
+        foreach (var o in obj.Objects ?? new())
         {
+            var tileset = FindTileset(o.Gid & GID_MASK, tilesets);
+            if (tileset is null) continue;
+
+            float scaleX = o.X / tileset.TileWidth;
+            float scaleY = o.Y / tileset.TileHeight;
+
             objects.Add(new ObjectData
             {
                 Name = o.Name,
@@ -113,9 +113,12 @@ public static class TiledConverter
                 Height = o.Height,
                 Width = o.Width,
                 Rotation = o.Rotation,
-                X = o.X, Y = o.Y,
+                X = o.X,
+                Y = o.Y,
                 Visible = o.Visible,
-                Opacity = o.Opacity
+                Opacity = o.Opacity,
+                ScaleX = scaleX,
+                ScaleY = scaleY
             });
         }
 
@@ -128,5 +131,86 @@ public static class TiledConverter
             Objects = objects
         };
     }
-}
 
+    //ищем тайлсет которому принадлежит gid для скейлов
+    private static TilesetData? FindTileset(long? gid, List<TilesetData>? tilesets)
+    {
+        if (gid is null) return null;
+
+        foreach (var tileset in tilesets ?? [])
+        {
+            if (gid >= tileset.FirstGid &&  gid <= tileset.LastGid)
+            {
+                return tileset;
+            }
+        }
+        return null;
+    }
+
+    private static TilesetData ParseAtlas(TiledTileset tiledTileset, Tileset tileset, string mapDir)
+    {
+        //тип Atlas гарантирует что Image не null (смотреть TiledTileset.cs)
+        string imagePath = Path.Combine(mapDir!, tiledTileset.Image!.Source);
+
+        var image = new Runtime.ImageData
+        {
+            Source = imagePath,
+            Height = tiledTileset.Image.Height,
+            Width = tiledTileset.Image.Width
+        };
+
+        return new TilesetData
+        {
+            Type = Runtime.TilesetType.Atlas,
+            FirstGid = tileset.FirstGid,
+            LastGid = tileset.FirstGid + tiledTileset.TileCount - 1,
+            Source = tileset.Source,
+            Name = tiledTileset.Name,
+            TileWidth = tiledTileset.TileWidth,
+            TileHeight = tiledTileset.TileHeight,
+            TileCount = tiledTileset.TileCount,
+            Columns = tiledTileset.Columns,
+            Margin = tiledTileset.Margin,
+            Spacing = tiledTileset.Spacing,
+            Image = image
+        };
+    }
+
+    private static TilesetData ParseCollection(TiledTileset tiledTileset, Tileset tileset, string mapDir)
+    {
+        //тайлы с id и imageData
+        var tiles = tiledTileset.Tiles;
+        var images = new List<Runtime.ImageData>();
+
+        foreach (var tile in tiles ?? [])
+        {
+            //опять же мой код гарантирует что там не null
+            string imagePath = Path.Combine(mapDir!, tile.Image!.Source);
+
+            var image = tile.Image;
+
+            images.Add(new Runtime.ImageData
+            {
+                Source = imagePath,
+                Height = tile.Image.Height,
+                Width = tile.Image.Width
+            });
+
+        }
+        return new TilesetData
+        {
+            Type = Runtime.TilesetType.Collection,
+            FirstGid = tileset.FirstGid,
+            LastGid = tileset.FirstGid + tiledTileset.TileCount - 1,
+            Source = tileset.Source,
+            Name = tiledTileset.Name,
+            TileWidth = tiledTileset.TileWidth,
+            TileHeight = tiledTileset.TileHeight,
+            TileCount = tiledTileset.TileCount,
+            Columns = tiledTileset.Columns,
+            Margin = tiledTileset.Margin,
+            Spacing = tiledTileset.Spacing,
+            Images = images
+        };
+    }
+}

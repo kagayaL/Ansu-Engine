@@ -14,6 +14,7 @@ public struct Vector2
     }
 
     public static Vector2 Zero => new(0f, 0f);
+    public static Vector2 Half => new(0.5f, 0.5f);
     public static Vector2 One => new(1f, 1f);
 
     // Длина вектора

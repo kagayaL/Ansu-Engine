@@ -98,10 +98,10 @@
         {
          "draworder":"topdown",
          "id":2,
-         "name":"\u0421\u043b\u043e\u0439 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432 1",
+         "name":"\u0421\u043b\u043e\u0439 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432 12",
          "objects":[
                 {
-                 "gid":906,
+                 "gid":2147484554,
                  "height":145.939393939394,
                  "id":10,
                  "name":"",
@@ -109,9 +109,9 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":157.939393939394,
-                 "x":625.5,
-                 "y":284.954545454545
+                 "width":365.939393939394,
+                 "x":777.5,
+                 "y":662.954545454545
                 }, 
                 {
                  "gid":905,
@@ -146,7 +146,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":13,
+ "nextobjectid":14,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

@@ -40,21 +40,10 @@ public class RenderSystem
         LoadSprites(world);
         foreach (var drawObject in _drawList)
         {
-            switch (drawObject.DrawType)
-            {
-                case DrawType.Sprite:
-                    DrawSprite(drawObject);
-                    break;
-                case DrawType.Tilelayer:
-                    DrawTileLayer(drawObject);
-                    break;
-                default:
-                    continue;
-            }
-
+            DrawSprite(drawObject);        
         }
-
     }
+    
 
     //Из очереди грузим в мой список и сортируем по слою, чтобы правильно рисовать
     private void LoadSprites(World world)
@@ -65,8 +54,6 @@ public class RenderSystem
         foreach (var item in query)
         {
             Sprite? sprite = null;
-            TileMapComponent? tileMap = null;
-            DrawType type = DrawType.Sprite;
             int depth = 0;
 
             if (world.HasComponent<Sprite>(item))
@@ -74,20 +61,12 @@ public class RenderSystem
                 sprite = world.GetComponent<Sprite>(item);
                 depth = sprite.Value.Layer;
             }
-            else if (world.HasComponent<TileMapComponent>(item))
-            {
-                tileMap = world.GetComponent<TileMapComponent>(item);
-                depth = tileMap.Value.Layer;
-                type = DrawType.Tilelayer;
-            }
 
             DrawData data = new DrawData
             {
                 Transformed = world.GetComponent<Transform>(item),
                 Sprite = sprite,
-                TileMapComponent = tileMap,
-                Layer = depth,
-                DrawType = type
+                Layer = depth
 
             };
             _drawList.Add(data);
@@ -103,37 +82,13 @@ public class RenderSystem
 
         if (texture == null) return;
 
-        Vector2 transform = CoreToMonogame.ConvertVector2(sprite.Transformed.Position);
-        Rectangle? rect = CoreToMonogame.ConvertRectangle(sprite.Sprite.Value.SourceRect);
+        Vector2 position = CoreToMonogame.ConvertVector2(sprite.Transformed.Position);
+        Vector2 scale = CoreToMonogame.ConvertVector2(sprite.Transformed.Scale);
+        Vector2 origin = CoreToMonogame.ConvertVector2(sprite.Transformed.Origin);
+        Rectangle? rectangle = CoreToMonogame.ConvertRectangle(sprite.Sprite.Value.SourceRect);
 
-        _renderer.DrawSprite(texture, transform, rect);
+        _renderer.DrawSprite(texture, position, sprite.Transformed.Rotation, origin, rectangle, scale);
     }
 
-    private void DrawTileLayer(DrawData tileLayer)
-    {
-        Console.WriteLine("draw layer");
-        if (tileLayer.TileMapComponent == null) return;
-
-        TileMapComponent? layer = tileLayer.TileMapComponent;
-
-        long[]? grid = layer.Value.Grid;
-        if (grid == null) return;
-
-        int tileSize = layer.Value.TileSize;
-
-        for (int i = 0; i < grid.Length; i++)
-        {
-            Rectangle rectangle;
-            Texture2D? texture = _manager.GetTexture(layer.Value.TilesetsId, grid[i], out rectangle);
-
-            if (texture == null) continue;
-
-            int col = i % layer.Value.Cols;
-            int row = i / layer.Value.Cols;
-            Vector2 pos = new Vector2(col * tileSize, row * tileSize);
-
-            _renderer.DrawSprite(texture, pos, rectangle);
-        }
-    }
 }
 
