@@ -13,16 +13,15 @@ public struct Sprite : IComponent
 {
 
     // ID текстуры
-    public string TextureId;
+    public int TextureId;
 
     // Область вырезки на текстуре. null, если рисуется текстура целиком.
     public Rect? SourceRect;
 
-
     // Слой, на котором должен быть отрисован спрайт.
-    public Layer Layer;
+    public int Layer;
 
-    public Sprite(string textureId, Layer layer = Layer.World, Rect? sourceRect = null)
+    public Sprite(int textureId, int layer = 0, Rect? sourceRect = null)
     {
         TextureId = textureId;
         Layer = layer;
