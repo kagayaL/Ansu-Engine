@@ -3,6 +3,10 @@ using Editor.Selection;
 using Core.Math;
 using Core.GameData;
 using Core.Physics.Components;
+using Runtime;
+using Microsoft.Xna.Framework.Graphics;
+using Render.Graphics;
+using System.Reflection.Metadata;
 
 // логика редактора - что можно делать со сценой
 // панели вызывают эти методы, не трогая World
@@ -39,6 +43,14 @@ public sealed class EditorActions
 
         scene.World.AddComponent(entity, new NameComponent(name));
 
+        var sprite = new Sprite
+        {
+            TextureId = 0,          
+            Layer = 0,
+            SourceRect = new Core.Math.Rect(0, 0, 32, 32)   // ← кусок текстуры
+        };
+        scene.World.AddComponent(entity, sprite);
+        
         _selection.Select(entity);
         _document.MarkDirty();
         return ActionResult.Ok();
@@ -107,5 +119,24 @@ public sealed class EditorActions
 
         _document.MarkDirty();
         return ActionResult.Ok();
+    }
+
+    public ActionResult LoadLevel(string path, GraphicsDevice device, Renderer renderer, ResourceManager resourceManager)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            return ActionResult.Fail("The path is empty");
+        }
+        try
+        {
+            var world = _document.Scene.World;
+            LevelLoader.LoadLevel(path, world, device, renderer, resourceManager);
+            _document.MarkDirty();
+            return ActionResult.Ok();
+        }
+        catch (Exception exc)
+        {
+            return ActionResult.Fail($"Loading error: {exc.Message}");
+        }
     }
 }

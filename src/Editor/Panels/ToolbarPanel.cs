@@ -1,6 +1,7 @@
 using ImGuiNET;
 using Editor.Model;
 using Core.ECS;
+using NativeFileDialogSharp;
 
 namespace Editor.Panels;
 
@@ -19,9 +20,18 @@ public sealed class ToolBarPanel : IPanel
             {
                 context.Status.Success("New scene created");
             }
-            if (ImGui.MenuItem("Open scene"))
+            if (ImGui.MenuItem("Open scene..."))
             {
-                context.Status.Success("Scene opened");
+                var dialog = Dialog.FileOpen("tmj,tmx");
+                
+                if (dialog.IsOk)
+                {
+                    context.LoadLevelAction?.Invoke(dialog.Path);
+                }
+                else if (dialog.IsError)
+                {
+                    context.Status.Error("File dialog error: " + dialog.ErrorMessage);
+                }
             } 
             if (ImGui.MenuItem("Save scene"))
             {
