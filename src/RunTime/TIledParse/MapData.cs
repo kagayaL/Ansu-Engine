@@ -39,8 +39,15 @@ public record class LayerData
     [JsonPropertyName("objects")] public List<ObjectData>? Objects { get; init; }
 }
 
+
+public enum TilesetType
+{
+    [JsonStringEnumMemberName("atlas")] Atlas,
+    [JsonStringEnumMemberName("collection")] Collection
+}
 public record class TilesetData
 {
+    [JsonPropertyName("type")] public TilesetType Type { get; init; }
     [JsonPropertyName("first_gid")] public int FirstGid { get; init; }
     [JsonPropertyName("last_gid")] public int LastGid { get; init; }
     [JsonPropertyName("source")] public string? Source { get; init; }
@@ -51,17 +58,25 @@ public record class TilesetData
     [JsonPropertyName("columns")] public int Columns { get; init; }
     [JsonPropertyName("margin")] public int Margin { get; init; }
     [JsonPropertyName("spacing")] public int Spacing { get; init; }
-    [JsonPropertyName("image_source")] public string ImageSource { get; init; } = "";
-    [JsonPropertyName("image_width")] public int ImageWidth { get; init; }
-    [JsonPropertyName("image_height")] public int ImageHeight { get; init; }
+    [JsonPropertyName("image")] public ImageData? Image { get; init; }
+    [JsonPropertyName("images")] public List<ImageData>? Images { get; init; }
+    
 }
 
+public record class ImageData
+{
+    [JsonPropertyName("image_source")] public string Source { get; init; } = "";
+    [JsonPropertyName("image_width")] public int Width { get; init; }
+    [JsonPropertyName("image_height")] public int Height { get; init; }
+}
 public record class ObjectData
 {
     [JsonPropertyName("name")] public string? Name { get; init; }
     [JsonPropertyName("gid")] public long? Gid { get; init; }
     [JsonPropertyName("height")] public float Height { get; init; }
     [JsonPropertyName("width")] public float Width { get; init; }
+    [JsonPropertyName("scale_x")] public float ScaleX { get; init; }
+    [JsonPropertyName("scale_y")] public float ScaleY { get; init; }
     [JsonPropertyName("rotation")] public float Rotation { get; init; }
     [JsonPropertyName("x")] public float X { get; init; }
     [JsonPropertyName("y")] public float Y { get; init; }

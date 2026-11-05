@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿/*using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using Render.Input;
@@ -64,8 +64,8 @@ public sealed class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         _input.Update();
-        
-        if (_input.IsActionPressed("Pause")) 
+
+        if (_input.IsActionPressed("Pause"))
         {
             Exit();
         }
@@ -88,9 +88,29 @@ public sealed class Game1 : Game
 
             System.Console.WriteLine($"[Camera] Режим изменен на: {_cameraFollow.Mode}");
         }
+<<<<<<< HEAD
         
+=======
+
+        // управление зумом
+        float zoomSpeed = 1.5f * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (_input.IsActionDown("ZoomIn"))
+        {
+            _camera.Zoom += zoomSpeed;
+        }
+        if (_input.IsActionDown("ZoomOut"))
+        {
+            _camera.Zoom -= zoomSpeed;
+        }
+
+        // защита: не даем зуму уйти в ноль или отрицательные значения
+        if (_camera.Zoom < 0.1f) _camera.Zoom = 0.1f;
+        if (_camera.Zoom > 3.0f) _camera.Zoom = 3.0f;
+
+>>>>>>> 0ef3b96e72d576d3924582bcf3aeabf11a1cbed8
         //формула для движения, независимого от частоты кадров
-        float speed = 400f * (float)gameTime.ElapsedGameTime.TotalSeconds; 
+        float speed = 400f * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         if (_input.IsActionDown("MoveLeft"))
         {
@@ -100,11 +120,11 @@ public sealed class Game1 : Game
         {
             _testPosition.X += speed;
         }
-        if (_input.IsActionDown("MoveStraight")) 
+        if (_input.IsActionDown("MoveStraight"))
         {
             _testPosition.Y -= speed;
         }
-        if (_input.IsActionDown("MoveBack")) 
+        if (_input.IsActionDown("MoveBack"))
         {
             _testPosition.Y += speed;
         }
@@ -115,7 +135,7 @@ public sealed class Game1 : Game
 
         base.Update(gameTime);
     }
-    
+
 
     protected override void Draw(GameTime gameTime)
     {
@@ -124,7 +144,7 @@ public sealed class Game1 : Game
         //задаем размеры прямоугольника
         Rectangle testRect = new Rectangle((int)_testPosition.X, (int)_testPosition.Y, 64, 64);
         _graphics.Renderer.DrawRect(testRect, Color.Magenta);
-       
+
         // визуализация границ мира (красная рамка), чтобы видеть RoomLocked
         if (_cameraFollow.WorldBounds.HasValue)
         {
@@ -144,10 +164,10 @@ public sealed class Game1 : Game
 
 
 
-
+*/
 
 //пыталась совместить гейм из гита с моим, возникают конфликты возможно из-за того, что у меня пнг нет на компе
-/*using Core.ECS;
+using Core.ECS;
 using Core.GameData;
 using Core.Physics.Components;
 using Microsoft.Xna.Framework;
@@ -165,6 +185,7 @@ using System;
 using System.IO;
 using Render.Input;
 using Core.Input;
+using Core.Physics.Systems;
 namespace MyGame;
 
 public class Game1 : Game
@@ -178,14 +199,15 @@ public class Game1 : Game
     private Render.Camera.Viewport _viewport;
     private Vector2 _testPosition = new Vector2(600, 300);
 
-    private Renderer _renderer; 
-    private MapRenderer _mapRenderer;
+    Transform transform;
+    Entity koza;
+
+    private Renderer _renderer;
     private MapData _mapData;
-    
+
     private World _world;
     private ResourceManager _manager;
     private RenderSystem _renderSystem;
-    private List<(Position, Sprite)> _query;
 
     public Game1()
     {
@@ -222,7 +244,7 @@ public class Game1 : Game
         _graphics = new GraphicsService(GraphicsDevice, _settings);
         _input = new InputManager();
 
-        _renderer = _graphics.Remderer;
+        _renderer = _graphics.Renderer;
 
         // инициализация камеры и вьюпорта
         _camera = new Camera2d(_settings.Width, _settings.Height);
@@ -233,35 +255,32 @@ public class Game1 : Game
         _cameraFollow.WorldBounds = new Rectangle(0, 0, 2000, 1000);
         // пусть фиксированный X для VerticalFollow
         _cameraFollow.FixedX = 640f;
-        _query = new List<(Position, Sprite)>();
-        _manager = new ResourceManager();
+        _manager = new ResourceManager(GraphicsDevice);
         _renderSystem = new RenderSystem(_renderer, _manager);
 
-        
+
 
         _world = new World();
-        _koza = _world.CreateEntity();
+        koza = _world.CreateEntity();
 
-        Position position = new Position(100, 100);
+        transform = new Transform(100, 100);
         Velocity velocity = new Velocity(100, 100);
         string path = Path.Combine(AppContext.BaseDirectory, "Data", "32tile.png");
         InputComponent inputComponent = new InputComponent(200f);
         Sprite sprite1 = new Sprite(_manager.LoadTexture(path), 4);
-        Sprite sprite2 = new Sprite(_manager.LoadTexture(path), 4);
 
         _world.AddComponent(koza, transform);
         _world.AddComponent(koza, velocity);
         _world.AddComponent(koza, sprite1);
+        _world.AddComponent(koza, inputComponent);
 
-        _mapRenderer = newMapRenderer();
-        path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
-        _mapData = TiledConverter.Convert(path);
-        _mapRenderer.LoadTextures(_mapData, GraphicsDevice);
+        _world.AddSystem(new InputSystem(new GameInputProvider(_input)));
+        _world.AddSystem(new PlayerMovementSystem());
+        _world.AddSystem(new MovementSystem());
 
         path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
         LevelLoader.LoadLevel(path, _world, GraphicsDevice, _renderer, _manager);
-        Transform mapTransform = new Transform(0, 0, MathHelper.ToRadians(10f));
-        
+
     }
 
     protected override void Update(GameTime gameTime)
@@ -285,7 +304,7 @@ public class Game1 : Game
 
             System.Console.WriteLine($"[Camera] Режим изменен на: {_cameraFollow.Mode}");
         }
-        
+
         // управление зумом
         float zoomSpeed = 1.5f * (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (_input.IsActionDown("ZoomIn")) _camera.Zoom += zoomSpeed;
@@ -296,38 +315,20 @@ public class Game1 : Game
 
 
         //формула для движения, независимого от частоты кадров
-        float speed = 400f * (float)gameTime.ElapsedGameTime.TotalSeconds; 
+        float speed = 400f * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (_input.IsActionDown("MoveLeft"))
-        {
-            _testPosition.X -= speed;
-        }
-        if (_input.IsActionDown("MoveRight"))
-        {
-            _testPosition.X += speed;
-        }
-        if (_input.IsActionDown("MoveStraight")) 
-        {
-            _testPosition.Y -= speed;
-        }
-        if (_input.IsActionDown("MoveBack")) 
-        {
-            _testPosition.Y += speed;
-        }
+        
 
         // обновление камеры каждый кадр
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        _cameraFollow.Update(_testPosition, deltaTime);
+
+        transform = _world.GetComponent<Transform>(koza);
+
+        _cameraFollow.Update(CoreToMonogame.ConvertVector2(transform.Position), deltaTime);
 
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (_inputManager.IsActionPressed("Interact"))
-        {
-            string path = Path.Combine(AppContext.BaseDirectory, "Data", "sample.tmj");
-            path = "C:/Users/Denis/Desktop/FillerName/src/Tests/RunTime/Data/sample.tmj";
-            _mapData = TiledConverter.Convert(path);
-        }
-
+        
         _world.Update(dt);
         base.Update(gameTime);
     }
@@ -339,7 +340,7 @@ public class Game1 : Game
         //задаем размеры прямоугольника
         Rectangle testRect = new Rectangle((int)_testPosition.X, (int)_testPosition.Y, 64, 64);
         _graphics.Renderer.DrawRect(testRect, Color.Magenta);
-       
+
         // визуализация границ мира (красная рамка), чтобы видеть RoomLocked
         if (_cameraFollow.WorldBounds.HasValue)
         {
@@ -351,17 +352,14 @@ public class Game1 : Game
             _graphics.Renderer.DrawRect(new Rectangle(bounds.Right - 4, bounds.Top, 4, bounds.Height), Color.Red);
         }
 
-        if (_mapData != null)
-        {
-            _mapRenderer.DrawMap(_graphics.Renderer, _mapData);
-        }
+       
 
         // В) ECS Сущности (код сокомандников)
-        _renderSystem.DrawSprites(_query);
+        _renderSystem.DrawRenderList(_world);
 
         // 3. ОДИН End на весь кадр
         _graphics.Renderer.End();
 
         base.Draw(gameTime);
     }
-}*/
+}
