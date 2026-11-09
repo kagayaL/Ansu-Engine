@@ -9,18 +9,11 @@ using Core.GameData.TileMap;
 
 namespace Runtime;
 
-public enum DrawType
-{
-    Sprite,
-    Tilelayer
-}
 internal class DrawData : IComparable<DrawData>
 {
     public Sprite? Sprite { get; set; }
-    public TileMapComponent? TileMapComponent {get; set;}
-    public DrawType DrawType { get; set; }
     public int Layer { get; set;}
-    public Position Position { get; set; }
+    public Transform Transformed { get; set; }
 
     public int CompareTo(DrawData? other)
     {
@@ -28,9 +21,9 @@ internal class DrawData : IComparable<DrawData>
         if (this == other) return 0;
 
         if (this.Layer > other.Layer) return 1;
-        if (this.Layer == other.Layer) return -1;
+        if (this.Layer == other.Layer) return 0;
         
-        return 0;
+        return -1;
     }
 }
 

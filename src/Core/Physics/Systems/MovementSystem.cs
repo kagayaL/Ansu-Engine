@@ -16,10 +16,10 @@ public class MovementSystem : ECS.ISystem
         {
             var entity = new Entity(entityId);
 
-            if (world.HasComponent<Position>(entity))
+            if (world.HasComponent<Transform>(entity))
             {
-                ref var position = ref world.GetComponent<Position>(entity);
-                position.Coordinates += velocity.Direction * deltaTime;
+                ref var transform = ref world.GetComponent<Transform>(entity);
+                transform.Position += velocity.Direction * deltaTime;
             }
         }
     }

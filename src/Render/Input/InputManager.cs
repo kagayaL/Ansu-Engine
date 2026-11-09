@@ -27,6 +27,8 @@ public class InputManager
             {"MoveBack", Keys.S},
             {"Interact", Keys.E },
             {"Pause", Keys.Escape},
+            {"ZoomIn", Keys.Z},
+            {"ZoomOut", Keys.X}
         };
     }
 

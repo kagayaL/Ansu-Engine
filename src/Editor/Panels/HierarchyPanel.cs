@@ -30,7 +30,7 @@ public sealed class HierarchyPanel : IPanel
             ImGui.Begin("Hierarchy", flags);
 
             var scene = context.Document.Scene;
-            var positions = scene.World.GetPool<Position>(); // берем всех на конкретной позиции
+            var positions = scene.World.GetPool<Transform>(); // берем всех на конкретной позиции
 
             if (positions.Count == 0)
         {
