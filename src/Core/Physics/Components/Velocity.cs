@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace Core.Physics.Components;
 
 using Core.Math;
+using Core.ECS;
 
-public struct Velocity
+public struct Velocity : IComponent
 {
     public Vector2 Direction {  get; set; }
 
