@@ -1,3 +1,3 @@
 namespace Core.Scene;
 
-public readonly record struct SceneLoadedEvent(Scene.Scene LoadedScene) : IEvent;
+public readonly record struct SceneLoadedEvent(Scene LoadedScene) : IEvent;
