@@ -1,6 +1,8 @@
 using ImGuiNET;
 using Editor.Model;
 using Microsoft.VisualBasic;
+using Core.Physics.Components;
+using System.Xml.Serialization;
 
 namespace Editor.Panels;
 
@@ -22,19 +24,46 @@ public sealed class InspectorPanel : IPanel
 
         var flags = Constants.PanelsFlags;
         
-            ImGui.Begin("Inspector", flags);
+        ImGui.Begin("Inspector", flags);
 
-        // заглушка
-        if (context.Selection.Selected == null)
+        var selected = context.Selection.Selected;
+        if (selected == null)
         {
             ImGui.TextUnformatted("Nothing has been chosen");
         }
         else
         {
-            // когда появятся сущности, тут будет имя и св-ва
-            ImGui.TextUnformatted("Entity has been chosen");
-        }
+            string name = context.Actions.GetEntityName(selected.Value);
+            ImGui.Text($"Name: {name}");
+            ImGui.Separator();
 
+            var world = context.Document.Scene.World;
+            if (world.HasComponent<Transform>(selected.Value)) {
+                ref var transform = ref world.GetComponent<Transform>(selected.Value);
+
+                float x = transform.Position.X;
+                float y = transform.Position.Y;
+
+                if (ImGui.DragFloat("X", ref x, 0.5f))
+                {
+                    context.Actions.SetPosition(selected.Value, x, y);
+                }
+                if (ImGui.DragFloat("Y", ref y, 0.5f))
+                {
+                    context.Actions.SetPosition(selected.Value, x, y);
+                }
+
+                ImGui.Separator();
+                ImGui.Text($"Rotation: {transform.Rotation}");
+                ImGui.Text($"Scale: {transform.Scale}");
+
+            }
+            else
+            {
+                ImGui.TextUnformatted("No transform component");
+            }
+        }
+        
         ImGui.End();
     }
 }
