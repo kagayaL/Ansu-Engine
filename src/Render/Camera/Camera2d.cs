@@ -8,7 +8,8 @@ public class Camera2d
     public Vector2 Position { get; set;}
 
     //масштаб камеры, 1 = обычный масштаб, 2 = приближение в 2 раза, 0,5 - отдаление в 2 раза
-    public float Zoom { get; set; } = 1f;
+    //internal сделан чтобы едитор мог менять зум (через InternalsVisibleTo), а в модах это не использовалось
+    public float Zoom { get; internal set; } = 1f;
 
     //размеры экрана в пикселях
     private readonly int _screenWidth;
@@ -29,10 +30,12 @@ public class Camera2d
     // в моногейм матрицы применяются справа налево, поэтому пишем в обратном порядке
     public Matrix GetViewMatrix()
     {
-       Matrix ViewMatrix = Matrix.CreateTranslation(_screenWidth/2f, _screenHeight/2f, 0) 
-       * Matrix.CreateTranslation(-Position.X, -Position.Y, 0)  
-       * Matrix.CreateScale(Zoom, Zoom, 1);
-       return ViewMatrix;
+        float offsetX = (_screenWidth / 2f) * (1f - Zoom);
+        float offsetY = (_screenHeight / 2f) * (1f - Zoom);
+        Matrix ViewMatrix = Matrix.CreateTranslation(_screenWidth/2f, _screenHeight/2f, 0) 
+        * Matrix.CreateScale(Zoom, Zoom, 1)
+        * Matrix.CreateTranslation(-Position.X + offsetX, -Position.Y + offsetY, 0);
+        return ViewMatrix;
     }
 
     // создаем обратную матрицу, чтобы узнавать реальные мировые координаты screenPos,
