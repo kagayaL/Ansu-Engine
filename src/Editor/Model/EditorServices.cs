@@ -8,10 +8,7 @@ public record EditorServices(IFileDialogService Dialogs,
     ISceneFileService SceneFiles,
     IGameLauncher GameLauncher,
     IEditorConfigService Config,
-    ILogger Logger,
-    object GraphicsDevice,
-    object Renderer,
-    object ResourceManager)
+    ILogger Logger)
 {
     
 }

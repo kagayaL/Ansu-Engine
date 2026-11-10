@@ -11,10 +11,7 @@ var services = new EditorServices(
     SceneFiles: new NullSceneFileService(),
     GameLauncher: new NullGameLauncher(),
     Config: new NullEditorConfigService(),
-    Logger: new NullLogger(),
-    GraphicsDevice: null!,
-    Renderer: null!,
-    ResourceManager: null!);
+    Logger: new NullLogger());
 
 var status = new EditorStatus();
 status.Success("StatusBar");

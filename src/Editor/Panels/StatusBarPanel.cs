@@ -18,12 +18,7 @@ public sealed class StatusBarPanel : IPanel
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(windowWidth, Constants.StatusBarHeight), ImGuiCond.Always);
             
-        ImGuiWindowFlags flags =
-            ImGuiWindowFlags.NoTitleBar | // убирает серую полосу заголовка
-            ImGuiWindowFlags.NoResize |      // нельзя тянуть за углы и менять размер
-            ImGuiWindowFlags.NoMove |        // нельзя перетащить мышью за заголовок
-            ImGuiWindowFlags.NoSavedSettings; // не сохранять положение и размер в imgui.ini
-
+        var flags = Constants.PanelsFlags | ImGuiWindowFlags.NoTitleBar;
             ImGui.Begin("##StatusBar", flags); // открывает окно с названием статусбар, но в заголовке не показывает
             
             // цвет красный при ошибке, зелёный иначе

@@ -23,18 +23,13 @@ public sealed class ViewportPanel : IPanel
         ImGui.SetNextWindowPos(pos, ImGuiCond.Always);
         ImGui.SetNextWindowSize(size, ImGuiCond.Always);
         
-        ImGuiWindowFlags flags =
-            ImGuiWindowFlags.NoResize |      // нельзя тянуть за углы и менять размер
-            ImGuiWindowFlags.NoMove |        // нельзя перетащить мышью за заголовок
-            ImGuiWindowFlags.NoSavedSettings | // не сохранять положение и размер в imgui.ini
-            ImGuiWindowFlags.NoBackground;
+        var flags = Constants.PanelsFlags | ImGuiWindowFlags.NoBackground;
 
             ImGui.Begin("Viewport", flags);
             context.ViewPort.ScreenBounds = new Rectangle(
                 (int)pos.X, (int)pos.Y,
                 (int)size.X, (int)size.Y
             );
-
             ImGui.End();
     }
 }
