@@ -35,6 +35,7 @@ public sealed class InspectorPanel : IPanel
         {
             string name = context.Actions.GetEntityName(selected.Value);
             ImGui.Text($"Name: {name}");
+            
             ImGui.Separator();
 
             var world = context.Document.Scene.World;
