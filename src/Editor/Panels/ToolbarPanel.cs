@@ -1,5 +1,7 @@
 using ImGuiNET;
 using Editor.Model;
+using Core.ECS;
+using NativeFileDialogSharp;
 
 namespace Editor.Panels;
 
@@ -18,9 +20,18 @@ public sealed class ToolBarPanel : IPanel
             {
                 context.Status.Success("New scene created");
             }
-            if (ImGui.MenuItem("Open scene"))
+            if (ImGui.MenuItem("Open scene..."))
             {
-                context.Status.Success("Scene opened");
+                var dialog = Dialog.FileOpen("tmj,tmx");
+                
+                if (dialog.IsOk)
+                {
+                    context.LoadLevelAction?.Invoke(dialog.Path);
+                }
+                else if (dialog.IsError)
+                {
+                    context.Status.Error("File dialog error: " + dialog.ErrorMessage);
+                }
             } 
             if (ImGui.MenuItem("Save scene"))
             {
@@ -55,13 +66,39 @@ public sealed class ToolBarPanel : IPanel
             ImGui.EndMenu();
         }
         // Entity
-        if (ImGui.MenuItem("Create Entity"))
-        {
-            var result = context.Actions.CreateEntity("Test " + DateTime.Now.Ticks);
-            if (result.Succeeded)
-                context.Status.Success("Entity created");
-            else
-                context.Status.Error(result.Error ?? "Failed");
+        if (ImGui.BeginMenu("Entity"))
+        {            
+            if (ImGui.MenuItem("Create Entity"))
+            {
+                string name = "Entity 1";
+                int cnt = 1;
+                while (context.Actions.HasEntityName(name))
+                {
+                    cnt++;
+                    name = "Entity " + cnt;
+                }
+                var result = context.Actions.CreateEntity(name);
+                if (result.Succeeded)
+                    context.Status.Success("Entity created");
+                else
+                    context.Status.Error(result.Error ?? "Failed");
+            }
+
+            var selected = context.Selection.Selected;
+            bool canDelete = selected != null;
+            if (!canDelete) ImGui.BeginDisabled();
+
+            if (ImGui.MenuItem("Delete Entity"))
+            {   
+                var result = context.Actions.DeleteEntity(selected!.Value);
+                if (result.Succeeded)
+                    context.Status.Success("Entity deleted");
+                else
+                    context.Status.Error(result.Error ?? "Failed");
+            }   
+            if (!canDelete) ImGui.EndDisabled();
+
+            ImGui.EndMenu();  
         }
         ImGui.EndMainMenuBar();
     }
