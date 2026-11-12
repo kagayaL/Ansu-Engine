@@ -36,17 +36,23 @@ public class MapBaker
 
         int tileSize = mapData.TileSize;
         int gridLength = grid == null ? 0 : grid.Length;
+
         for (int i = 0; i < gridLength; i++)
         {
-            Rectangle rectangle;
-            Texture2D? texture = resources.GetTexture(mapData.TilesetsId, grid![i], out rectangle);
+            Rectangle? rectangle;
+            Texture2D? texture = resources.GetTexture(mapData.TilesetsId,
+                grid![i] & GidResolver.GID_MASK, out rectangle);
 
             if (texture == null) continue;
 
             int col = i % layer.Cols;
             int row = i / layer.Cols;
-            Vector2 position = new Vector2(col * tileSize, row * tileSize);
-            renderer.DrawSprite(texture, position, 0f, null, rectangle);
+            Vector2 position = new Vector2(col * tileSize + tileSize * 0.5f,
+                row * tileSize + tileSize * 0.5f);
+
+            SpriteEffects spriteEffects = GidResolver.GetSpriteEffects(grid![i], out var rotation);
+
+            renderer.DrawSprite(texture, position, rotation, new Vector2 (0.5f, 0.5f), rectangle, null, null, spriteEffects);
         }
 
         renderer.End();
