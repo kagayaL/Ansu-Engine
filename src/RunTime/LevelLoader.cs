@@ -11,6 +11,7 @@ using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Core.HierarchyComponents;
 
 namespace Runtime;
 public class LevelLoader
@@ -47,6 +48,7 @@ public class LevelLoader
         NameComponent name = new NameComponent(layer.Name ?? "");
         world.AddComponent(layerEntity, sprite);
         world.AddComponent(layerEntity, Transform.Default);
+        world.AddComponent(layerEntity, new RootEntity());
         world.AddComponent(layerEntity, name);
     }
 
@@ -66,6 +68,7 @@ public class LevelLoader
             Core.Math.Vector2 scale = new Core.Math.Vector2(obj.ScaleX, obj.ScaleY);
             Transform transform = new Transform(obj.X, obj.Y, obj.Rotation, null, scale);
             world.AddComponent(entity, sprite);
+            world.AddComponent(entity, new RootEntity());
             world.AddComponent(entity, Transform.Default);
         }
     }

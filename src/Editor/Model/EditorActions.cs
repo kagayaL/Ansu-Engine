@@ -3,6 +3,8 @@ using Editor.Selection;
 using Core.Math;
 using Core.GameData;
 using Core.Physics.Components;
+using System.Net.Mail;
+using Core.HierarchyComponents;
 
 // логика редактора - что можно делать со сценой
 // панели вызывают эти методы, не трогая World
@@ -38,6 +40,28 @@ public sealed class EditorActions
 
         scene.World.AddComponent(entity, new Transform());
         scene.World.AddComponent(entity, new NameComponent(name));
+        scene.World.AddComponent(entity, new RootEntity());
+
+        _selection.Select(entity);
+        _document.MarkDirty();
+        return ActionResult.Ok();
+    }
+
+    public ActionResult CreateFolder(string name)
+    {
+        name = name.Trim();
+
+        if (name.Length == 0)
+        {
+            return ActionResult.Fail("Name can't be empty");
+        }
+        var scene = _document.Scene;
+        var entity = scene.World.CreateEntity();
+
+        scene.World.AddComponent(entity, new Transform());
+        scene.World.AddComponent(entity, new NameComponent(name));
+        scene.World.AddComponent(entity, new RootEntity());
+        scene.World.AddComponent(entity, new Folder());
 
         _selection.Select(entity);
         _document.MarkDirty();

@@ -100,6 +100,45 @@ public sealed class ToolBarPanel : IPanel
 
             ImGui.EndMenu();  
         }
+        if (ImGui.BeginMenu("Folder"))
+        {
+            if (ImGui.MenuItem("Create Folder"))
+            {
+                string name = "Folder 1";
+                int cnt = 1;
+                while (context.Actions.HasEntityName(name))
+                {
+                    cnt++;
+                    name = "Folder " + cnt;
+                }
+                var result = context.Actions.CreateFolder(name);
+                if (result.Succeeded)
+                    context.Status.Success("Folder created");
+                else
+                    context.Status.Error(result.Error ?? "Failed");
+            }
+
+            var selected = context.Selection.Selected;
+            bool canDelete = selected != null;
+            if (!canDelete) ImGui.BeginDisabled();
+
+            if (ImGui.MenuItem("Delete Folder"))
+            {
+                var result = context.Actions.DeleteEntity(selected!.Value);
+                if (result.Succeeded)
+                    context.Status.Success("Folder deleted");
+                else
+                    context.Status.Error(result.Error ?? "Failed");
+            }
+            if (!canDelete) ImGui.EndDisabled();
+
+            ImGui.EndMenu();
+        }
         ImGui.EndMainMenuBar();
     }
+
+    
+
+
+
 }
