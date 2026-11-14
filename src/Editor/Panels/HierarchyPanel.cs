@@ -87,7 +87,7 @@ public sealed class HierarchyPanel : IPanel
         }
 
         DragDropFolderTarget(context, entity);
-        DragDropSource(context, entity, label);
+        DragDropSource(context, entity, name);
 
         if (isOpen)
         {
@@ -124,10 +124,10 @@ public sealed class HierarchyPanel : IPanel
         {
             context.Selection.Select(entity);
         }
-        DragDropSource(context, entity, label);
+        DragDropSource(context, entity, name);
     }
 
-    private void DragDropSource(EditorContext context, Entity entity, string label)
+    private void DragDropSource(EditorContext context, Entity entity, string name)
     {
         if (ImGui.BeginDragDropSource())
         {
@@ -136,7 +136,7 @@ public sealed class HierarchyPanel : IPanel
             {
                 ImGui.SetDragDropPayload("ENTITY_ID", (IntPtr)(&id), sizeof(int));
             }
-            ImGui.Text($"{label}");
+            ImGui.Text($"{name}");
             ImGui.EndDragDropSource();
         } 
 
@@ -168,6 +168,8 @@ public sealed class HierarchyPanel : IPanel
     //перемещаем в папку (удаляем у старого родителя, добавляем новому
     private void MoveToFolder(EditorContext context, Entity folder, Entity entity)
     {
+        if (IsRelatives(context, folder, entity)) return;
+
         var world = context.Document.Scene.World;
         var folderComponent = world.GetComponent<Folder>(folder);
 
@@ -188,8 +190,6 @@ public sealed class HierarchyPanel : IPanel
             //старый родитель - папка, удаляем из нее
             if (world.HasComponent<Folder>(oldParent) )
             {
-                Console.WriteLine("it folder");
-                Console.WriteLine(world.GetComponent<NameComponent>(oldParent).Name);
 
                 var oldFolderComponent = world.GetComponent<Folder>(oldParent);
                 //удаляем у старого родителя ребенка
@@ -202,4 +202,26 @@ public sealed class HierarchyPanel : IPanel
 
     }
 
+    //проверка что у родителя ребенок не является предком
+    private bool IsRelatives(EditorContext context, Entity parent, Entity child)
+    {
+
+        var world = context.Document.Scene.World;
+        //если родитель корневой, то точно ложь
+        if (world.HasComponent<RootEntity>(parent)) return false;
+
+        var ansector = world.GetComponent<Parent>(parent).GetParent();
+
+        //идем по предкам родитяля, пока не дойдем до корня
+        while (!world.HasComponent<RootEntity>(ansector))
+        {
+            if (ansector == child) return true;
+            //переход к некст предку
+            ansector = world.GetComponent<Parent>(ansector).GetParent();
+
+        }
+        //проверка корня
+        if (ansector == child) return true;
+        return false;
+    }
 }
