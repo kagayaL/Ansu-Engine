@@ -76,7 +76,6 @@ public sealed class HierarchyPanel : IPanel
         string name = context.Actions.GetEntityName(entity);
         string label = name + "##entity_" + entity.Id;
         var world = context.Document.Scene.World;
-        var folder = world.GetComponent<Folder>(entity);
 
         //открываю папку
         bool isOpen = ImGui.TreeNodeEx(label, flags);
@@ -91,7 +90,8 @@ public sealed class HierarchyPanel : IPanel
 
         if (isOpen)
         {
-            var children = folder.GetChildren();
+            var folder = world.GetComponent<Folder>(entity);
+            var children = new List<Entity>(folder.GetChildren());
 
             foreach (var child in children)
             {
@@ -197,4 +197,5 @@ public sealed class HierarchyPanel : IPanel
         folderComponent.AddChild(entity);
 
     }
+
 }
