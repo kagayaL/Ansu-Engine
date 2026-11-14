@@ -3,6 +3,7 @@ using Editor.Model;
 using Core.Physics.Components;
 using Core.ECS;
 using Core.HierarchyComponents;
+using Core.GameData;
 
 namespace Editor.Panels;
 
@@ -173,13 +174,13 @@ public sealed class HierarchyPanel : IPanel
         //если наша сущность была корневой, то надо удалить компонент
         if (world.HasComponent<RootEntity>(entity))
         {
-            world.RemoveComponent<RootEntity>(entity);
+            world.RemoveComponent<RootEntity>(entity);  
             world.AddComponent<Parent>(entity, new Parent(folder));
 
         } //если сущность не корневая, то у нее обязан быть родитель
         else if (world.HasComponent<Parent>(entity))
         {
-            var parentComponent = world.GetComponent<Parent>(entity);
+            ref var parentComponent = ref world.GetComponent<Parent>(entity);
             //переназначаем родителя
             var oldParent = parentComponent.GetParent();
             parentComponent.SetParent(folder);
@@ -187,6 +188,9 @@ public sealed class HierarchyPanel : IPanel
             //старый родитель - папка, удаляем из нее
             if (world.HasComponent<Folder>(oldParent) )
             {
+                Console.WriteLine("it folder");
+                Console.WriteLine(world.GetComponent<NameComponent>(oldParent).Name);
+
                 var oldFolderComponent = world.GetComponent<Folder>(oldParent);
                 //удаляем у старого родителя ребенка
                 oldFolderComponent.RemoveChild(entity);
