@@ -4,11 +4,15 @@ using Core.ECS;
 using Core.Physics.Systems;
 using Core.Physics.Components;
 using Core.GameData;
+using Core.Math;
+using Core.Events;
+using Core.Physics;
 
 namespace Tests.RunTime;
 
 public class WorldTest
 {
+    int forTestCollision = 0;
     [Fact]
     public void MoveEntity()
     {
@@ -46,6 +50,48 @@ public class WorldTest
         Assert.Equal(emptyList, world.GetRenderList()); // при удалении какого-нибудь из компонентов (Position, Sprite), сущность удаляется из очереди
     }
 
+    [Fact]
+    public void EntityCollisionResolution()
+    {
+        World world = new World();
+        world.AddSystem(new MovementSystem());
+        EventBus eventBus = new EventBus();
+        world.AddSystem(new CollisionSystem(eventBus));
+        eventBus.Subscribe<CollisionEvent>(HandleTestingCollison);
 
+        Entity entity1 = world.CreateEntity();
+        world.AddComponent(entity1, new Transform(0, 0));
+        world.AddComponent(entity1, new Velocity(2, 2));
+        world.AddComponent(entity1, new Collider(new Rect(0, 0, 10, 10)));
+
+        Entity entity2 = world.CreateEntity();
+        world.AddComponent(entity2, new Transform(11, 11));
+        world.AddComponent(entity2, new Velocity(0, 0));
+        world.AddComponent(entity2, new Collider(new Rect(0, 0, 10, 10)));
+
+        var collider1 = world.GetComponent<Collider>(entity1);
+        var collider2 = world.GetComponent<Collider>(entity2);
+
+        world.Update(0);
+        Assert.NotNull(collider1);
+        Assert.NotNull(collider2);
+        Assert.Equal(0, forTestCollision);
+
+
+        world.Update(3);
+
+        collider1 = world.GetComponent<Collider>(entity1);
+        collider2 = world.GetComponent<Collider>(entity2);
+
+        Assert.NotNull(collider1);
+        Assert.NotNull(collider2);
+        Assert.Equal(2, forTestCollision);
+
+    }
+
+    public void HandleTestingCollison(CollisionEvent ev) // инкрементирует поле forTestCollision когда случается колизия
+    {
+        forTestCollision++;
+    }
 }
 
