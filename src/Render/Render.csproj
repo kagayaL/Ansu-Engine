@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5.1" />
     <ProjectReference Include="..\Core\Core.csproj" />
+    <InternalsVisibleTo Include="Editor" />
   </ItemGroup>
 
 </Project>

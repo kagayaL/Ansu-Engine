@@ -2,9 +2,8 @@ using ImGuiNET;
 using Editor.Model;
 using Core.Physics.Components;
 using Core.ECS;
-using System.Linq;
-using System.Reflection.Metadata;
-using Microsoft.VisualBasic;
+using Core.HierarchyComponents;
+using Core.GameData;
 
 namespace Editor.Panels;
 
@@ -19,42 +18,247 @@ public sealed class HierarchyPanel : IPanel
             new System.Numerics.Vector2(0, Constants.ToolbarHeight),
             ImGuiCond.Always);
         ImGui.SetNextWindowSize(
-            new System.Numerics.Vector2(Constants.HierarchyWidth, Constants.ToolbarHeight - (windowHeight - Constants.StatusBarHeight)),
+            new System.Numerics.Vector2(Constants.HierarchyWidth, windowHeight - Constants.StatusBarHeight - Constants.ToolbarHeight),
             ImGuiCond.Always);
 
-        ImGuiWindowFlags flags =
-            ImGuiWindowFlags.NoResize |      // нельзя тянуть за углы и менять размер
-            ImGuiWindowFlags.NoMove |        // нельзя перетащить мышью за заголовок
-            ImGuiWindowFlags.NoSavedSettings; // не сохранять положение и размер в imgui.ini
+        var flags = Constants.PanelsFlags;
+        
+        ImGui.Begin("Hierarchy", flags);
 
-            ImGui.Begin("Hierarchy", flags);
+        var scene = context.Document.Scene;
+        //тут будет не позиция, а RootEntity
+        var positions = scene.World.GetPool<RootEntity>(); // берем всех на конкретной позиции
 
-            var scene = context.Document.Scene;
-            var positions = scene.World.GetPool<Transform>(); // берем всех на конкретной позиции
-
-            if (positions.Count == 0)
+        if (positions.Count == 0)
         {
             ImGui.TextUnformatted("The scene is empty");
         }
         else
         {
-            var entitiesList = positions.Keys.ToList();
+            DrawRoot(context, positions.Keys.ToList());
+        }
+        var avail = ImGui.GetContentRegionAvail();
+        if (avail.X > 0 && avail.Y > 0)
+        {
+            ImGui.InvisibleButton("empty", avail);
+            DragDropTarget(context);
+        }
 
-            for (int i = 0; i < entitiesList.Count; i++)
+        ImGui.End();
+    }
+
+    private void DrawRoot(EditorContext context, List <int> entities)
+    {
+        List <int> nonFolders = new List <int>();
+
+        //Рисую папки
+        for (int i = 0; i < entities.Count; i++)
+        {
+            var entityID = entities[i];
+            var entity = new Entity(entityID);
+            //RootEntity могут быть как папками, так и просто сущностями. По папкам надо проходиться внутрь
+            if (context.Document.Scene.World.HasComponent<Folder>(entity))
             {
-                int entityID = entitiesList[i];
-                var entity = new Entity(entityID);
-
-                bool isSelected = context.Selection.IsSelected(entity);
-
-                string label = "Entity " + entityID + "##" + i;
-
-                if (ImGui.Selectable(label, isSelected))
-                {
-                    context.Selection.Select(entity);
-                }
+                DrawFolder(context, entity);
+            }
+            else
+            {
+                //сохраняю сущности не папки, чтобы потом быстро пройтись по ним
+                nonFolders.Add(entityID);
             }
         }
-        ImGui.End();
+        foreach (var entityId in nonFolders)
+        {
+            var entity = new Entity(entityId);
+            DrawNonFolder(context, entity);
+        }
+
+    }
+    
+    //Тут рисуем папку со всеми ее детьми.
+    private void DrawFolder(EditorContext context, Entity entity)
+    {
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.OpenOnArrow | ImGuiTreeNodeFlags.SpanAvailWidth;
+
+        bool isSelected = context.Selection.IsSelected(entity);
+        string name = context.Actions.GetEntityName(entity);
+        string label = name + "##entity_" + entity.Id;
+        var world = context.Document.Scene.World;
+
+        //открываю папку
+        bool isOpen = ImGui.TreeNodeEx(label, flags);
+
+        if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+        {
+            context.Selection.Select(entity);
+        }
+
+        DragDropTarget(context, entity);
+        DragDropSource(context, entity, name);
+
+        if (isOpen)
+        {
+            var folder = world.GetComponent<Folder>(entity);
+            var children = new List<Entity>(folder.GetChildren());
+
+            foreach (var child in children)
+            {
+                //если ребенок папка - идем вглубь
+                if (world.HasComponent<Folder>(child))
+                {
+                    DrawFolder(context, child);
+                }
+                else
+                {
+                    DrawNonFolder(context, child);
+                }
+            }
+            ImGui.TreePop();
+        }
+        
+
+    }
+
+    private void DrawNonFolder(EditorContext context, Entity entity)
+    {
+
+        bool isSelected = context.Selection.IsSelected(entity);
+
+        string name = context.Actions.GetEntityName(entity);
+        string label = name + "##entity_" + entity.Id;
+
+        if (ImGui.Selectable(label, isSelected))
+        {
+            context.Selection.Select(entity);
+        }
+        DragDropSource(context, entity, name);
+    }
+
+    private void DragDropSource(EditorContext context, Entity entity, string name)
+    {
+        if (ImGui.BeginDragDropSource())
+        {
+            var id = entity.Id;
+            unsafe
+            {
+                ImGui.SetDragDropPayload("ENTITY_ID", (IntPtr)(&id), sizeof(int));
+            }
+            ImGui.Text($"{name}");
+            ImGui.EndDragDropSource();
+        } 
+
+    }
+
+    //что будет если таргетом при драг дропе будет папка (сущность в папку положить)
+    private void DragDropTarget(EditorContext context, Entity? target = null)
+    {
+        if (ImGui.BeginDragDropTarget())
+        {
+            var payload = ImGui.AcceptDragDropPayload("ENTITY_ID");
+
+            unsafe
+            {
+                if (payload.NativePtr != null)
+                {
+                    //id сброшенной сущности
+                    int droppedEntityId = *(int*)payload.Data;
+                    //сброшенная сущность
+                    var droppedEntity = new Entity(droppedEntityId);
+
+                    if (target is not null)
+                    {
+                        Entity folder = target ?? new();
+
+                        if (context.Document.Scene.World.HasComponent<Folder>(folder))
+                        {
+                            MoveToFolder(context, folder, droppedEntity);
+                        }
+                    }
+                    else
+                    {
+                        MakeRoot(context, droppedEntity);
+                    }
+
+                }
+            }
+            ImGui.EndDragDropTarget();
+        }
+    }
+
+    private void MakeRoot(EditorContext context, Entity entity)
+    {
+        var world = context.Document.Scene.World;
+
+        if (world.HasComponent<RootEntity>(entity)) return;
+
+        var parentComponent = world.GetComponent<Parent>(entity);
+        var parent = parentComponent.GetParent();
+
+        var folderComponent = world.GetComponent<Folder>(parent);
+        folderComponent.RemoveChild(entity);
+
+        world.RemoveComponent<Parent>(entity);
+        world.AddComponent(entity, new RootEntity());
+
+    }
+         
+    //перемещаем в папку (удаляем у старого родителя, добавляем новому
+    private void MoveToFolder(EditorContext context, Entity folder, Entity entity)
+    {
+        if (IsRelatives(context, folder, entity)) return;
+
+        var world = context.Document.Scene.World;
+        var folderComponent = world.GetComponent<Folder>(folder);
+
+        //если наша сущность была корневой, то надо удалить компонент
+        if (world.HasComponent<RootEntity>(entity))
+        {
+            world.RemoveComponent<RootEntity>(entity);  
+            world.AddComponent<Parent>(entity, new Parent(folder));
+
+        } //если сущность не корневая, то у нее обязан быть родитель
+        else if (world.HasComponent<Parent>(entity))
+        {
+            ref var parentComponent = ref world.GetComponent<Parent>(entity);
+            //переназначаем родителя
+            var oldParent = parentComponent.GetParent();
+            parentComponent.SetParent(folder);
+
+            //старый родитель - папка, удаляем из нее
+            if (world.HasComponent<Folder>(oldParent) )
+            {
+
+                var oldFolderComponent = world.GetComponent<Folder>(oldParent);
+                //удаляем у старого родителя ребенка
+                oldFolderComponent.RemoveChild(entity);
+            }
+
+        }
+
+        folderComponent.AddChild(entity);
+
+    }
+
+    //проверка что у родителя ребенок не является предком
+    private bool IsRelatives(EditorContext context, Entity parent, Entity child)
+    {
+
+        var world = context.Document.Scene.World;
+        //если родитель корневой, то точно ложь
+        if (world.HasComponent<RootEntity>(parent)) return false;
+
+        var ansector = world.GetComponent<Parent>(parent).GetParent();
+
+        //идем по предкам родитяля, пока не дойдем до корня
+        while (!world.HasComponent<RootEntity>(ansector))
+        {
+            if (ansector == child) return true;
+            //переход к некст предку
+            ansector = world.GetComponent<Parent>(ansector).GetParent();
+
+        }
+        //проверка корня
+        if (ansector == child) return true;
+        return false;
     }
 }

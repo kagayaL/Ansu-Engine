@@ -14,6 +14,12 @@ public sealed class Renderer : IDisposable
     private readonly SpriteBatch _batch;
     private Texture2D _pixelTexture;
     private bool _began;
+    private static readonly RasterizerState _scissorRasterizerState = new RasterizerState
+    {
+        CullMode = CullMode.None,
+        ScissorTestEnable = true
+    };
+
 
     public Renderer(GraphicsDevice device)
     {
@@ -45,7 +51,7 @@ public sealed class Renderer : IDisposable
             blendState: BlendState.AlphaBlend,
             samplerState: SamplerState.PointClamp,
             depthStencilState: DepthStencilState.None,
-            rasterizerState: RasterizerState.CullNone,
+            rasterizerState: _scissorRasterizerState,
             //типичный шейдер без всякий спецэффектов
             effect: null,
             //каждая вершина спрайта умножается на эту матрицу

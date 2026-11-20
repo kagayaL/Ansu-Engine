@@ -1,7 +1,11 @@
 using Core.ECS;
-using Core.Physics.Components;
 using Editor.Selection;
 using Core.Math;
+using Core.GameData;
+using Core.Physics.Components;
+using System.Net.Mail;
+using Core.HierarchyComponents;
+
 // логика редактора - что можно делать со сценой
 // панели вызывают эти методы, не трогая World
 namespace Editor.Model;
@@ -33,11 +37,60 @@ public sealed class EditorActions
         }
         var scene = _document.Scene;
         var entity = scene.World.CreateEntity();
+
         scene.World.AddComponent(entity, new Transform());
+        scene.World.AddComponent(entity, new NameComponent(name));
+        scene.World.AddComponent(entity, new RootEntity());
 
         _selection.Select(entity);
         _document.MarkDirty();
         return ActionResult.Ok();
+    }
+
+    public ActionResult CreateFolder(string name)
+    {
+        name = name.Trim();
+
+        if (name.Length == 0)
+        {
+            return ActionResult.Fail("Name can't be empty");
+        }
+        var scene = _document.Scene;
+        var entity = scene.World.CreateEntity();
+
+        scene.World.AddComponent(entity, new Transform());
+        scene.World.AddComponent(entity, new NameComponent(name));
+        scene.World.AddComponent(entity, new RootEntity());
+        scene.World.AddComponent(entity, new Folder());
+
+        _selection.Select(entity);
+        _document.MarkDirty();
+        return ActionResult.Ok();
+    }
+
+    public string GetEntityName(Entity entity)
+    {
+        var world = _document.Scene.World;
+        if (world.HasComponent<NameComponent>(entity))
+        {
+            var compName = world.GetComponent<NameComponent>(entity);
+            return compName.Name;
+        }
+        return "Entity " + entity.Id;
+    }
+
+    public bool HasEntityName(string name)
+    {
+        var names = _document.Scene.World.GetPool<NameComponent>();
+
+        foreach (var compName in names.Values)
+        {
+            if (compName.Name == name)
+            {
+                return true;
+            } 
+        }
+        return false;
     }
 
     public ActionResult DeleteEntity(Entity entity)
@@ -56,8 +109,8 @@ public sealed class EditorActions
             _selection.Clear();
         }
 
-            _document.MarkDirty();
-            return ActionResult.Ok();
+        _document.MarkDirty();
+        return ActionResult.Ok();
     }
 
     public ActionResult SetPosition(Entity entity, float x, float y)
