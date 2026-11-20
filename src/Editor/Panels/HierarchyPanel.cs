@@ -23,21 +23,28 @@ public sealed class HierarchyPanel : IPanel
 
         var flags = Constants.PanelsFlags;
         
-            ImGui.Begin("Hierarchy", flags);
+        ImGui.Begin("Hierarchy", flags);
 
-            var scene = context.Document.Scene;
-            //тут будет не позиция, а RootEntity
-            var positions = scene.World.GetPool<RootEntity>(); // берем всех на конкретной позиции
+        var scene = context.Document.Scene;
+        //тут будет не позиция, а RootEntity
+        var positions = scene.World.GetPool<RootEntity>(); // берем всех на конкретной позиции
 
-            if (positions.Count == 0)
-            {
-                ImGui.TextUnformatted("The scene is empty");
-            }
-            else
-            {
-                DrawRoot(context, positions.Keys.ToList());
-            }
-            ImGui.End();
+        if (positions.Count == 0)
+        {
+            ImGui.TextUnformatted("The scene is empty");
+        }
+        else
+        {
+            DrawRoot(context, positions.Keys.ToList());
+        }
+        var avail = ImGui.GetContentRegionAvail();
+        if (avail.X > 0 && avail.Y > 0)
+        {
+            ImGui.InvisibleButton("empty", avail);
+            DragDropTarget(context);
+        }
+
+        ImGui.End();
     }
 
     private void DrawRoot(EditorContext context, List <int> entities)
@@ -86,7 +93,7 @@ public sealed class HierarchyPanel : IPanel
             context.Selection.Select(entity);
         }
 
-        DragDropFolderTarget(context, entity);
+        DragDropTarget(context, entity);
         DragDropSource(context, entity, name);
 
         if (isOpen)
@@ -143,7 +150,7 @@ public sealed class HierarchyPanel : IPanel
     }
 
     //что будет если таргетом при драг дропе будет папка (сущность в папку положить)
-    private void DragDropFolderTarget(EditorContext context, Entity folder)
+    private void DragDropTarget(EditorContext context, Entity? target = null)
     {
         if (ImGui.BeginDragDropTarget())
         {
@@ -158,13 +165,43 @@ public sealed class HierarchyPanel : IPanel
                     //сброшенная сущность
                     var droppedEntity = new Entity(droppedEntityId);
 
-                    MoveToFolder(context, folder, droppedEntity);
+                    if (target is not null)
+                    {
+                        Entity folder = target ?? new();
+
+                        if (context.Document.Scene.World.HasComponent<Folder>(folder))
+                        {
+                            MoveToFolder(context, folder, droppedEntity);
+                        }
+                    }
+                    else
+                    {
+                        MakeRoot(context, droppedEntity);
+                    }
+
                 }
             }
             ImGui.EndDragDropTarget();
         }
     }
 
+    private void MakeRoot(EditorContext context, Entity entity)
+    {
+        var world = context.Document.Scene.World;
+
+        if (world.HasComponent<RootEntity>(entity)) return;
+
+        var parentComponent = world.GetComponent<Parent>(entity);
+        var parent = parentComponent.GetParent();
+
+        var folderComponent = world.GetComponent<Folder>(parent);
+        folderComponent.RemoveChild(entity);
+
+        world.RemoveComponent<Parent>(entity);
+        world.AddComponent(entity, new RootEntity());
+
+    }
+         
     //перемещаем в папку (удаляем у старого родителя, добавляем новому
     private void MoveToFolder(EditorContext context, Entity folder, Entity entity)
     {
