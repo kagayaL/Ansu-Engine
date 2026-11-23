@@ -41,7 +41,7 @@ public sealed class HierarchyPanel : IPanel
         if (avail.X > 0 && avail.Y > 0)
         {
             ImGui.InvisibleButton("empty", avail);
-            DragDropTarget(context);
+            RootTarget(context);
         }
 
         ImGui.End();
@@ -93,7 +93,7 @@ public sealed class HierarchyPanel : IPanel
             context.Selection.Select(entity);
         }
 
-        DragDropTarget(context, entity);
+        FolderTarget(context, entity);
         DragDropSource(context, entity, name);
 
         if (isOpen)
@@ -147,40 +147,48 @@ public sealed class HierarchyPanel : IPanel
 
     }
 
+    private bool HasDroppedEntity(out Entity droppedEntity)
+    {
+        droppedEntity = default;
+        var payload = ImGui.AcceptDragDropPayload("ENTITY_ID");
+        unsafe
+        {
+            if (payload.NativePtr == null) return false;
+
+            //id сброшенной сущности
+            int droppedEntityId = *(int*)payload.Data;
+            //сброшенная сущность
+            droppedEntity = new Entity(droppedEntityId);
+            return true;
+
+        }
+    }
+
     //что будет если таргетом при драг дропе будет папка (сущность в папку положить)
-    private void DragDropTarget(EditorContext context, Entity? target = null)
+    private void FolderTarget(EditorContext context, Entity folder)
     {
         if (ImGui.BeginDragDropTarget())
         {
-            var payload = ImGui.AcceptDragDropPayload("ENTITY_ID");
-
-            unsafe
+            if (HasDroppedEntity(out var droppedEntity)) 
             {
-                if (payload.NativePtr != null)
-                {
-                    //id сброшенной сущности
-                    int droppedEntityId = *(int*)payload.Data;
-                    //сброшенная сущность
-                    var droppedEntity = new Entity(droppedEntityId);
-
-                    if (target is not null)
-                    {
-                        Entity folder = target ?? new();
-
-                        if (context.Document.Scene.World.HasComponent<Folder>(folder))
-                        {
-                            context.Actions.MoveToFolder(folder, droppedEntity);
-                        }
-                    }
-                    else
-                    {
-                        context.Actions.MakeRoot(droppedEntity);
-                    }
-
-                }
+                context.Actions.MoveToFolder(folder, droppedEntity);
             }
-            ImGui.EndDragDropTarget();
         }
+        ImGui.EndDragDropTarget();
+        
     }
+    //Если таргет - пустота в конце, то делаю источник корневым
+    private void RootTarget(EditorContext context)
+    {
+        if (ImGui.BeginDragDropTarget())
+        {
+            if (HasDroppedEntity(out var droppedEntity))
+            {
+                context.Actions.MakeRoot(droppedEntity);
+            }
+        }
+        ImGui.EndDragDropTarget();
+    }
+
          
 }
