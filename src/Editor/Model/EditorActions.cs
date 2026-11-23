@@ -167,6 +167,36 @@ public sealed class EditorActions
         return ActionResult.Ok();
     }
 
+    public ActionResult DeleteFolder(Entity entity)
+    {
+        var world = _document.Scene.World;
+
+        if (!world.IsAlive(entity))
+        {
+            return ActionResult.Fail("The folder was not found");
+        }
+        if(!world.HasComponent<Folder>(entity))
+        {
+            return ActionResult.Fail("Object was not folder");
+        }
+        ref var folderComponent = ref world.GetComponent<Folder>(entity);
+
+        foreach (var child in folderComponent.GetChildren())
+        {
+            if (world.HasComponent<Folder>(child)) DeleteFolder(child);
+            else DeleteEntity(child);
+        }
+        world.DestroyEntity(entity);
+
+        if (_selection.IsSelected(entity))
+        {
+            _selection.Clear();
+        }
+
+        _document.MarkDirty();
+        return ActionResult.Ok();
+    }
+
     public ActionResult SetPosition(Entity entity, float x, float y)
     {
         var world = _document.Scene.World;

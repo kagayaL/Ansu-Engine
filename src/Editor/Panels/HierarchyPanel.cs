@@ -81,6 +81,8 @@ public sealed class HierarchyPanel : IPanel
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.OpenOnArrow | ImGuiTreeNodeFlags.SpanAvailWidth;
 
         bool isSelected = context.Selection.IsSelected(entity);
+        if (isSelected) flags |= ImGuiTreeNodeFlags.Selected;
+
         string name = context.Actions.GetEntityName(entity);
         string label = name + "##entity_" + entity.Id;
         var world = context.Document.Scene.World;

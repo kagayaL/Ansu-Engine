@@ -124,7 +124,7 @@ public sealed class ToolBarPanel : IPanel
 
             if (ImGui.MenuItem("Delete Folder"))
             {
-                var result = context.Actions.DeleteEntity(selected!.Value);
+                var result = context.Actions.DeleteFolder(selected!.Value);
                 if (result.Succeeded)
                     context.Status.Success("Folder deleted");
                 else
