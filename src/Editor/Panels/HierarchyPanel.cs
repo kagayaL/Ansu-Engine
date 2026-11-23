@@ -115,8 +115,6 @@ public sealed class HierarchyPanel : IPanel
             }
             ImGui.TreePop();
         }
-        
-
     }
 
     private void DrawNonFolder(EditorContext context, Entity entity)
@@ -171,12 +169,12 @@ public sealed class HierarchyPanel : IPanel
 
                         if (context.Document.Scene.World.HasComponent<Folder>(folder))
                         {
-                            MoveToFolder(context, folder, droppedEntity);
+                            context.Actions.MoveToFolder(folder, droppedEntity);
                         }
                     }
                     else
                     {
-                        MakeRoot(context, droppedEntity);
+                        context.Actions.MakeRoot(droppedEntity);
                     }
 
                 }
@@ -184,81 +182,5 @@ public sealed class HierarchyPanel : IPanel
             ImGui.EndDragDropTarget();
         }
     }
-
-    private void MakeRoot(EditorContext context, Entity entity)
-    {
-        var world = context.Document.Scene.World;
-
-        if (world.HasComponent<RootEntity>(entity)) return;
-
-        var parentComponent = world.GetComponent<Parent>(entity);
-        var parent = parentComponent.GetParent();
-
-        var folderComponent = world.GetComponent<Folder>(parent);
-        folderComponent.RemoveChild(entity);
-
-        world.RemoveComponent<Parent>(entity);
-        world.AddComponent(entity, new RootEntity());
-
-    }
          
-    //перемещаем в папку (удаляем у старого родителя, добавляем новому
-    private void MoveToFolder(EditorContext context, Entity folder, Entity entity)
-    {
-        if (IsRelatives(context, folder, entity)) return;
-
-        var world = context.Document.Scene.World;
-        var folderComponent = world.GetComponent<Folder>(folder);
-
-        //если наша сущность была корневой, то надо удалить компонент
-        if (world.HasComponent<RootEntity>(entity))
-        {
-            world.RemoveComponent<RootEntity>(entity);  
-            world.AddComponent<Parent>(entity, new Parent(folder));
-
-        } //если сущность не корневая, то у нее обязан быть родитель
-        else if (world.HasComponent<Parent>(entity))
-        {
-            ref var parentComponent = ref world.GetComponent<Parent>(entity);
-            //переназначаем родителя
-            var oldParent = parentComponent.GetParent();
-            parentComponent.SetParent(folder);
-
-            //старый родитель - папка, удаляем из нее
-            if (world.HasComponent<Folder>(oldParent) )
-            {
-
-                var oldFolderComponent = world.GetComponent<Folder>(oldParent);
-                //удаляем у старого родителя ребенка
-                oldFolderComponent.RemoveChild(entity);
-            }
-
-        }
-
-        folderComponent.AddChild(entity);
-
-    }
-
-    //проверка что у родителя ребенок не является предком
-    private bool IsRelatives(EditorContext context, Entity parent, Entity child)
-    {
-
-        var world = context.Document.Scene.World;
-        //если родитель корневой, то точно ложь
-        if (world.HasComponent<RootEntity>(parent)) return false;
-
-        var ansector = world.GetComponent<Parent>(parent).GetParent();
-
-        //идем по предкам родитяля, пока не дойдем до корня
-        while (!world.HasComponent<RootEntity>(ansector))
-        {
-            if (ansector == child) return true;
-            //переход к некст предку
-            ansector = world.GetComponent<Parent>(ansector).GetParent();
-
-        }
-        //проверка корня
-        if (ansector == child) return true;
-        return false;
-    }
 }

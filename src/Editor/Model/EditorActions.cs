@@ -47,6 +47,60 @@ public sealed class EditorActions
         return ActionResult.Ok();
     }
 
+    public ActionResult MakeRoot(Entity entity)
+    {
+        var world = _document.Scene.World;
+
+        if (world.HasComponent<RootEntity>(entity)) return ActionResult.Fail("Entity is already root"); 
+
+        var parentComponent = world.GetComponent<Parent>(entity);
+        var parent = parentComponent.GetParent();
+
+        var folderComponent = world.GetComponent<Folder>(parent);
+        folderComponent.RemoveChild(entity);
+
+        world.RemoveComponent<Parent>(entity);
+        world.AddComponent(entity, new RootEntity());
+        return ActionResult.Ok();
+
+    }
+    //перемещаем в папку (удаляем у старого родителя, добавляем новому
+    public ActionResult MoveToFolder(Entity folder, Entity entity)
+    {
+        if (IsRelatives(folder, entity)) return ActionResult.Fail("Objects are relatives");
+
+        var world = _document.Scene.World;
+        var folderComponent = world.GetComponent<Folder>(folder);
+
+        //если наша сущность была корневой, то надо удалить компонент
+        if (world.HasComponent<RootEntity>(entity))
+        {
+            world.RemoveComponent<RootEntity>(entity);
+            world.AddComponent(entity, new Parent(folder));
+
+        } //если сущность не корневая, то у нее обязан быть родитель
+        else if (world.HasComponent<Parent>(entity))
+        {
+            ref var parentComponent = ref world.GetComponent<Parent>(entity);
+            //переназначаем родителя
+            var oldParent = parentComponent.GetParent();
+            parentComponent.SetParent(folder);
+
+            //старый родитель - папка, удаляем из нее
+            if (world.HasComponent<Folder>(oldParent))
+            {
+
+                var oldFolderComponent = world.GetComponent<Folder>(oldParent);
+                //удаляем у старого родителя ребенка
+                oldFolderComponent.RemoveChild(entity);
+            }
+
+        }
+
+        folderComponent.AddChild(entity);
+        return ActionResult.Ok();
+
+    }
     public ActionResult CreateFolder(string name)
     {
         name = name.Trim();
@@ -131,5 +185,26 @@ public sealed class EditorActions
 
         _document.MarkDirty();
         return ActionResult.Ok();
+    }
+
+    //проверка что у родителя ребенок не является предком
+    private bool IsRelatives(Entity parent, Entity child)
+    {
+        var world = _document.Scene.World;
+        //если родитель корневой, то точно ложь
+        if (world.HasComponent<RootEntity>(parent)) return false;
+
+        var ansector = world.GetComponent<Parent>(parent).GetParent();
+
+        //идем по предкам родитяля, пока не дойдем до корня
+        while (!world.HasComponent<RootEntity>(ansector))
+        {
+            if (ansector == child) return true;
+            //переход к некст предку
+            ansector = world.GetComponent<Parent>(ansector).GetParent();
+        }
+        //проверка корня
+        if (ansector == child) return true;
+        return false;
     }
 }
