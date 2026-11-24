@@ -8,7 +8,7 @@ public struct Collider : IComponent
     public Rect Bounds;
     public Vector2 Offset;
     public bool IsOneWay;
-    public float Bounciness;
+    public float Bounciness; // упругость 
 
     public Collider(Rect bounds, Vector2 offset = default, bool isOneWay = false, float bounciness = 0f)
     {
