@@ -23,9 +23,6 @@ public sealed class EntityData
     [JsonPropertyName("id")]
     public int Id { get; set; }
 
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
     [JsonPropertyName("components")]
     public List<ComponentData> Components { get; set; } = new();
 }
