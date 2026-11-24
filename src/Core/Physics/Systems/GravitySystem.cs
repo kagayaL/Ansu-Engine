@@ -12,9 +12,7 @@ public class GravitySystem : ISystem
             if (gravity.IsAffectedByGravity)
             {
                 ref Velocity velocity = ref world.GetComponent<Velocity>(entity);
-                var direction = velocity.Direction;
-                direction.Y += gravity.Force * deltaTime;
-                velocity.Direction = direction;
+                velocity.Direction += new Vector2(0, gravity.Force * deltaTime);
             }
         }
     }

@@ -89,6 +89,27 @@ public class WorldTest
 
     }
 
+    [Fact]
+    public void GravityEntity()
+    {
+        World world = new World();
+        world.AddSystem(new GravitySystem());
+        world.AddSystem(new MovementSystem());
+
+        Entity entity = world.CreateEntity();
+        world.AddComponent(entity, new Transform(0, 0));
+        world.AddComponent(entity, new Velocity(0, 0));
+        world.AddComponent(entity, new Gravity(9.8f));
+
+        world.Update(1);
+
+        var velocity = world.GetComponent<Velocity>(entity);
+        var transform = world.GetComponent<Transform>(entity);
+
+        Assert.Equal(9.8f, velocity.Direction.Y);
+        Assert.Equal(9.8f, transform.Position.Y);
+    }
+
     public void HandleTestingCollison(CollisionEvent ev) // инкрементирует поле forTestCollision когда случается колизия
     {
         forTestCollision++;
