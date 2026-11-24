@@ -15,8 +15,6 @@ namespace Runtime.TIledParse;
 //Конвретация map.tmj в MapData
 public static class TiledConverter
 {
-    private const uint GID_MASK = 0x0FFFFFFF;
-
     //Конвертирует tmj файл в мою структуру MapData.
     public static MapData Convert(string tmjPath)
     {
@@ -80,7 +78,7 @@ public static class TiledConverter
 
         for (int i = 0; i < grid.Length; i++)
         {
-            grid[i] = data[i] & GID_MASK;
+            grid[i] = data[i];
         }
 
         return new LayerData
@@ -100,16 +98,16 @@ public static class TiledConverter
 
         foreach (var o in obj.Objects ?? new())
         {
-            var tileset = FindTileset(o.Gid & GID_MASK, tilesets);
-            if (tileset is null) continue;
+            FindScales(o.Gid & GidResolver.GID_MASK, tilesets, out var x, out var y);
+            if (x * y == 0) continue;
 
-            float scaleX = o.X / tileset.TileWidth;
-            float scaleY = o.Y / tileset.TileHeight;
+            float scaleX = o.Width / x;
+            float scaleY = o.Height / y;
 
             objects.Add(new ObjectData
             {
                 Name = o.Name,
-                Gid = o.Gid & GID_MASK,
+                Gid = o.Gid,
                 Height = o.Height,
                 Width = o.Width,
                 Rotation = o.Rotation,
@@ -133,18 +131,37 @@ public static class TiledConverter
     }
 
     //ищем тайлсет которому принадлежит gid для скейлов
-    private static TilesetData? FindTileset(long? gid, List<TilesetData>? tilesets)
+    private static void FindScales(long? gid, List<TilesetData>? tilesets, out float x, out float y)
     {
-        if (gid is null) return null;
+        x = 0;
+        y = 0;
+        if (gid is null) return;
 
         foreach (var tileset in tilesets ?? [])
         {
             if (gid >= tileset.FirstGid &&  gid <= tileset.LastGid)
             {
-                return tileset;
+                switch (tileset.Type)
+                {
+                    case Runtime.TilesetType.Collection:
+                        int ind = (int)gid! - tileset.FirstGid;
+
+                        if (tileset.Images is null || 
+                            ind >= tileset.Images.Count()) return;
+                        x = tileset.Images[ind].Width;
+                        y = tileset.Images[ind].Height;
+                        return;
+
+                    case Runtime.TilesetType.Atlas:
+                        x = tileset.TileWidth;
+                        y = tileset.TileHeight;
+                        return;
+
+                }
+                
             }
         }
-        return null;
+        return;
     }
 
     private static TilesetData ParseAtlas(TiledTileset tiledTileset, Tileset tileset, string mapDir)

@@ -3,6 +3,7 @@
 using Core.GameData;
 using Core.Physics.Components;
 using Core.GameData.TileMap;
+using Core.Events;
 
 namespace Core.ECS;
 
@@ -16,12 +17,25 @@ public class World
 
     private readonly ComponentStore _store = new();
     private readonly SystemScheduler _scheduler = new();
+    private readonly EventBus _eventBus;
+
+    // Перечисление ID всех сущностей для первичной загрузки в UI
+    public IEnumerable<int> EntityIds => _entities;
+
+    public World(EventBus eventBus)
+    {
+        _eventBus = eventBus;
+    }
+
+    public World() : this(new Events.EventBus()) { }
 
     public Entity CreateEntity()
     {
         int id = _nextEntityId++;
         _entities.Add(id);
-        return new Entity(id);
+        var entity = new Entity(id);
+        _eventBus.Publish(new Events.Events.EntityCreatedEvent(entity)); // Уведомление о создании сущности
+        return entity;
     }
 
     public void DestroyEntity(Entity entity)
@@ -30,6 +44,7 @@ public class World
         {
             _renderList.Remove(entity);
             _store.RemoveAll(entity.Id);
+            _eventBus.Publish(new Events.Events.EntityDestroyedEvent(entity)); // Уведомление об удалении сущности
         }
     }
 
@@ -50,6 +65,8 @@ public class World
         {
             _renderList.Add(entity);
         }
+
+        _eventBus.Publish(new Events.Events.ComponentAddedEvent(entity, typeof(T))); // Уведомление о добавлении компонента
     }
 
     public ref T GetComponent<T>(Entity entity) where T : struct
@@ -72,6 +89,7 @@ public class World
         }
 
         _store.Remove<T>(entity.Id);
+        _eventBus.Publish(new Events.Events.ComponentRemovedEvent(entity, typeof(T))); // Уведомление об удалении компонента
     }
 
     public Dictionary<int, T> GetPool<T>() where T : struct
@@ -95,4 +113,21 @@ public class World
     {
         _scheduler.Update(this, deltaTime);
     }
+
+    public IEnumerable<Entity> Query<T1, T2>()
+    where T1 : struct
+    where T2 : struct
+    {
+        // Берем пул T1 (Dictionary<int, T1>)
+        var pool1 = _store.GetPool<T1>();
+
+        foreach (int entityId in pool1.Keys)
+        {
+            if (_store.Has<T2>(entityId))
+            {
+                yield return new Entity(entityId);
+            }
+        }
+    }
+
 }
