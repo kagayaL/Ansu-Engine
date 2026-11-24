@@ -10,6 +10,8 @@ public struct Transform : IComponent
     public Vector2 Scale;
     public Vector2 Origin;
 
+    public bool FlipH, FlipV;
+
     public Transform()
     {
         Position = Vector2.Zero;
