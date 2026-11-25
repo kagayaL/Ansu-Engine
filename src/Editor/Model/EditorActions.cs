@@ -3,6 +3,7 @@ using Editor.Selection;
 using Core.Math;
 using Core.GameData;
 using Core.Physics.Components;
+using Runtime;
 
 // логика редактора - что можно делать со сценой
 // панели вызывают эти методы, не трогая World
@@ -132,21 +133,20 @@ public sealed class EditorActions
             float width = 32f; // по умолчанию
             float height = 32f;
 
-            if (sprite.SourceRect.HasValue)
+            var rect = Culling.CalculateAABB(context.ResourceManager, sprite, transform);
+
+            if (rect.HasValue)
             {
-                width = sprite.SourceRect.Value.Width;
-                height = sprite.SourceRect.Value.Height;
+                width = rect.Value.Width;
+                height = rect.Value.Height;
             }
 
-            // + учитываем масштаб
-            float finalWidth = width * transform.Scale.X;
-            float finalHeight = height * transform.Scale.Y;
-
+            
             // Position - левый верхний угол
             float left = transform.Position.X;
-            float right = transform.Position.X + finalWidth;
+            float right = transform.Position.X + width;
             float top = transform.Position.Y;
-            float bottom = transform.Position.Y + finalHeight;
+            float bottom = transform.Position.Y + height;
 
             if (worldPos.X >= left && worldPos.X <= right && worldPos.Y >= top && worldPos.Y <= bottom)
             {

@@ -45,6 +45,8 @@ public class EditorApp : Game
 
         _renderer = new Renderer(GraphicsDevice);
         _resourceManager = new ResourceManager(GraphicsDevice);
+        _context.ResourceManager = _resourceManager;
+
         _renderSystem = new RenderSystem(_renderer, _resourceManager);
         _camera2d = new Camera2d(1280, 720);
         _renderViewport = new Render.Camera.Viewport(_camera2d, 1280, 720); 

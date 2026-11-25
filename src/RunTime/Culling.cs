@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.GameData;
+using Core.Math;
+using Core.Physics.Components;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+
 
 namespace Runtime;
 public class Culling
@@ -59,6 +58,17 @@ public class Culling
 
         return CalculateAABB(mSize, mPosition, rotation, mOrigin, mScales);
 
+    }
+
+    public static Rect? CalculateAABB(ResourceManager resourceManager, Sprite sprite, Transform transform)
+    {
+        var texture = resourceManager.GetTexture(sprite.TextureId);
+        Core.Math.Vector2 size = sprite.SourceRect is null ?
+                new Core.Math.Vector2(texture.Width, texture.Height) :
+                new Core.Math.Vector2(sprite.SourceRect.Value.Width, sprite.SourceRect.Value.Height);
+        //находим границы спрайта
+        var rect = Culling.CalculateAABB(size, transform.Position, transform.Rotation, transform.Origin, transform.Scale);
+        return MonogameToCore.ConvertRectangle(rect);
     }
 
 }
