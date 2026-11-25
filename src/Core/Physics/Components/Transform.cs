@@ -34,5 +34,5 @@ public struct Transform : IComponent
         Origin = origin ?? Vector2.Half;
     }
 
-    public static Transform Default => new(Vector2.Zero, 0f, Vector2.One, Vector2.Half);
+    public static Transform Default => new(Vector2.Zero, 0f, Vector2.One, Vector2.Zero);
 }

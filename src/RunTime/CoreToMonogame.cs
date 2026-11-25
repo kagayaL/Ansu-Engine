@@ -34,14 +34,14 @@ public class MonogameToCore
     public static Core.Math.Rect? ConvertRectangle(Rectangle? rectangleFromMonogame)
     {
         if (rectangleFromMonogame == null) return null;
-        
+
         float x = rectangleFromMonogame.Value.X;
         float y = rectangleFromMonogame.Value.Y;
         float width = (float)rectangleFromMonogame.Value.Width;
         float height = (float)rectangleFromMonogame.Value.Height;
 
         Core.Math.Rect rectangle = new Core.Math.Rect(x, y, width, height);
-        
+
         return rectangle;
     }
 
