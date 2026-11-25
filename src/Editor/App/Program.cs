@@ -15,7 +15,7 @@ var services = new EditorServices(
 
 var status = new EditorStatus();
 status.Success("StatusBar");
-var selection = new SelectionService();
+var selection = new SelectionService(scene.World);
 var viewport = new ViewportState();
 var actions = new EditorActions(document, selection, services, status);
 

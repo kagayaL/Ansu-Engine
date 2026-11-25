@@ -130,23 +130,22 @@ public sealed class EditorActions
             var sprite = k.Value;
             var transform = wrld.GetComponent<Transform>(entity);
 
-            float width = 32f; // по умолчанию
-            float height = 32f;
+            float width, height;
 
             var rect = Culling.CalculateAABB(context.ResourceManager, sprite, transform);
 
-            if (rect.HasValue)
-            {
-                width = rect.Value.Width;
-                height = rect.Value.Height;
-            }
-
+            if (!rect.HasValue) return;
             
+            width = rect.Value.Width;
+            height = rect.Value.Height;
+
+
+            var realRect = rect.Value;
             // Position - левый верхний угол
-            float left = transform.Position.X;
-            float right = transform.Position.X + width;
-            float top = transform.Position.Y;
-            float bottom = transform.Position.Y + height;
+            float left = realRect.X;
+            float right = realRect.X + width;
+            float top = realRect.Y;
+            float bottom = realRect.Y + height;
 
             if (worldPos.X >= left && worldPos.X <= right && worldPos.Y >= top && worldPos.Y <= bottom)
             {

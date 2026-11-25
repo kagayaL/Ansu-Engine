@@ -1,11 +1,6 @@
 ﻿using Core.Physics.Components;
 using Core.GameData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.GameData.TileMap;
+using Microsoft.Xna.Framework;
 
 namespace Runtime;
 
@@ -14,6 +9,7 @@ internal class DrawData : IComparable<DrawData>
     public Sprite Sprite { get; set; }
     public int Layer { get; set;}
     public Transform Transformed { get; set; }
+    public Rectangle Rectangle { get; set; }
 
     public int CompareTo(DrawData? other)
     {

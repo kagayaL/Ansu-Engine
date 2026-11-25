@@ -1,24 +1,9 @@
 ﻿using Core.ECS;
 using Core.GameData;
-using Core.GameData.TileMap;
 using Core.Physics.Components;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
 using Render.Graphics;
-
-using Runtime.TIledParse;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Runtime;
-using System.Text;
-using System.Threading.Tasks;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Runtime;
 
@@ -80,7 +65,8 @@ public class RenderSystem
             {
                 Transformed = transform,
                 Sprite = sprite,
-                Layer = depth
+                Layer = depth,
+                Rectangle = aabb
 
             };
             _drawList.Add(data);
@@ -101,6 +87,15 @@ public class RenderSystem
         Rectangle? rectangle = CoreToMonogame.ConvertRectangle(sprite.Sprite.SourceRect);
 
         _renderer.DrawSprite(texture, position, sprite.Transformed.Rotation, origin, rectangle, scale);
+        if (sprite.Sprite.isSelected)
+        {
+            var bounds = sprite.Rectangle;
+            Color pink = new Color(242, 92, 182);
+            _renderer.DrawRect(new Rectangle(bounds.Left, bounds.Top, bounds.Width, 4), pink);
+            _renderer.DrawRect(new Rectangle(bounds.Left, bounds.Bottom - 4, bounds.Width, 4), pink);
+            _renderer.DrawRect(new Rectangle(bounds.Left, bounds.Top, 4, bounds.Height), pink);
+            _renderer.DrawRect(new Rectangle(bounds.Right - 4, bounds.Top, 4, bounds.Height), pink);
+        }
     }
 
 }
