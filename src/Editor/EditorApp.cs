@@ -24,6 +24,7 @@ public class EditorApp : Game
     private ResourceManager _resourceManager;
     private RenderSystem _renderSystem;
     private Camera2d _camera2d;
+    private Render.Camera.Viewport _renderViewport;
 
     public EditorApp(EditorContext context, EditorPanels panels)
     {
@@ -46,6 +47,8 @@ public class EditorApp : Game
         _resourceManager = new ResourceManager(GraphicsDevice);
         _renderSystem = new RenderSystem(_renderer, _resourceManager);
         _camera2d = new Camera2d(1280, 720);
+        _renderViewport = new Render.Camera.Viewport(_camera2d, 1280, 720); 
+        _context.ViewPort.Camera = _camera2d;
 
         _context.LoadLevelAction = LoadLevel;
 
@@ -67,7 +70,7 @@ public class EditorApp : Game
         Rectangle bounds = _context.ViewPort.ScreenBounds;
         GraphicsDevice.ScissorRectangle = bounds;
         _renderer.Begin(_camera2d.GetViewMatrix());
-        _renderSystem.DrawRenderList(_context.Document.Scene.World);
+        _renderSystem.DrawRenderList(_context.Document.Scene.World, _renderViewport);
         _renderer.End();
         GraphicsDevice.ScissorRectangle = GraphicsDevice.Viewport.Bounds;
 

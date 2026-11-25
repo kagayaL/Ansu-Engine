@@ -30,6 +30,21 @@ public sealed class ViewportPanel : IPanel
                 (int)pos.X, (int)pos.Y,
                 (int)size.X, (int)size.Y
             );
+
+            context.ViewPort.IsMouseInside = ImGui.IsWindowHovered();
+            
+            if (context.ViewPort.IsMouseInside && context.ViewPort.Camera != null)
+            {
+                var mousePos = ImGui.GetMousePos();
+
+                var localMousePos = new Vector2(mousePos.X, mousePos.Y);
+
+                context.ViewPort.MouseWorldPosition = context.ViewPort.Camera.ScreenToWorld(localMousePos);
+                if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))
+                {
+                    context.Actions.SelectEntity(context, (int)mousePos.X, (int)mousePos.Y);
+                }
+            }
             ImGui.End();
     }
 }

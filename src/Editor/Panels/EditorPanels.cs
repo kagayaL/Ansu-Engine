@@ -13,7 +13,7 @@ public sealed class EditorPanels
     // вызываем Draw у всех панелей по порядку
     public void Draw(EditorContext context)
     {
-        for (int i = 0; i< _panels.Count; i++)
+        for (int i = 0; i < _panels.Count; i++)
         {
             _panels[i].Draw(context);
         }

@@ -108,4 +108,52 @@ public sealed class EditorActions
         _document.MarkDirty();
         return ActionResult.Ok();
     }
+
+    public void SelectEntity(EditorContext context, int localX, int localY)
+    {   
+        var xnaVector = new Microsoft.Xna.Framework.Vector2(localX, localY);
+        var worldPos = context.ViewPort.Camera.ScreenToWorld(xnaVector);
+        _status.Success($"World pos: {worldPos.X:F1}, {worldPos.Y:F1}");
+
+        var wrld = _document.Scene.World;
+        var sprites = wrld.GetPool<Sprite>();
+
+        foreach (var k in sprites)
+        {
+            var entity = new Entity(k.Key);
+
+            if (!wrld.HasComponent<Transform>(entity))
+            {
+                continue;
+            }
+            var sprite = k.Value;
+            var transform = wrld.GetComponent<Transform>(entity);
+
+            float width = 32f; // по умолчанию
+            float height = 32f;
+
+            if (sprite.SourceRect.HasValue)
+            {
+                width = sprite.SourceRect.Value.Width;
+                height = sprite.SourceRect.Value.Height;
+            }
+
+            // + учитываем масштаб
+            float finalWidth = width * transform.Scale.X;
+            float finalHeight = height * transform.Scale.Y;
+
+            // Position - левый верхний угол
+            float left = transform.Position.X;
+            float right = transform.Position.X + finalWidth;
+            float top = transform.Position.Y;
+            float bottom = transform.Position.Y + finalHeight;
+
+            if (worldPos.X >= left && worldPos.X <= right && worldPos.Y >= top && worldPos.Y <= bottom)
+            {
+                _selection.Select(entity);
+                return;
+            }
+        }
+        _selection.Clear();
+    }
 }
