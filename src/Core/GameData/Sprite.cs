@@ -21,6 +21,8 @@ public struct Sprite : IComponent
     // Слой, на котором должен быть отрисован спрайт.
     public int Layer;
 
+    public bool isSelected;
+
     public Sprite(int textureId, int layer = 0, Rect? sourceRect = null)
     {
         TextureId = textureId;
