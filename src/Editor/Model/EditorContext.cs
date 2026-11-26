@@ -1,5 +1,6 @@
 using Editor.Selection;
 namespace Editor.Model;
+
 //объединение всех частей редактора
 public sealed class EditorContext
 {
@@ -9,6 +10,7 @@ public sealed class EditorContext
     public EditorServices Services { get; } // файлы, лог и диалоги
     public EditorStatus Status { get; } // короткое сообщение внизу
     public ViewportState ViewPort { get; } // размер вьюпорта и камера
+    public Action<string>? LoadLevelAction { get; set; }
 
     public EditorContext(
         EditorDocument document,

@@ -1,16 +1,14 @@
 using ImGuiNET;
 using Editor.Model;
 using Microsoft.VisualBasic;
+using Core.Physics.Components;
+using System.Xml.Serialization;
 
 namespace Editor.Panels;
 
 // Св-ва выбранной сущности
 public sealed class InspectorPanel : IPanel
 {
-    private const float StatusBarHeight = 24f;
-    private const float ToolbarHeight = 20f;
-    private const float InspectorWidth = 300f;
-
     public void Draw(EditorContext context)
     {
         var io = ImGui.GetIO(); // глобальный объект ImGui с информацией о состоянии
@@ -24,24 +22,49 @@ public sealed class InspectorPanel : IPanel
             new System.Numerics.Vector2(Constants.InspectorWidth, windowHeight - Constants.StatusBarHeight),
             ImGuiCond.Always);
 
-        ImGuiWindowFlags flags =
-            ImGuiWindowFlags.NoResize |      // нельзя тянуть за углы и менять размер
-            ImGuiWindowFlags.NoMove |        // нельзя перетащить мышью за заголовок
-            ImGuiWindowFlags.NoSavedSettings; // не сохранять положение и размер в imgui.ini
+        var flags = Constants.PanelsFlags;
+        
+        ImGui.Begin("Inspector", flags);
 
-            ImGui.Begin("Inspector", flags);
-
-        // заглушка
-        if (context.Selection.Selected == null)
+        var selected = context.Selection.Selected;
+        if (selected == null)
         {
             ImGui.TextUnformatted("Nothing has been chosen");
         }
         else
         {
-            // когда появятся сущности, тут будет имя и св-ва
-            ImGui.TextUnformatted("Entity has been chosen");
-        }
+            string name = context.Actions.GetEntityName(selected.Value);
+            ImGui.Text($"Name: {name}");
+            
+            ImGui.Separator();
 
+            var world = context.Document.Scene.World;
+            if (world.HasComponent<Transform>(selected.Value)) {
+                ref var transform = ref world.GetComponent<Transform>(selected.Value);
+
+                float x = transform.Position.X;
+                float y = transform.Position.Y;
+
+                if (ImGui.DragFloat("X", ref x, 0.5f))
+                {
+                    context.Actions.SetPosition(selected.Value, x, y);
+                }
+                if (ImGui.DragFloat("Y", ref y, 0.5f))
+                {
+                    context.Actions.SetPosition(selected.Value, x, y);
+                }
+
+                ImGui.Separator();
+                ImGui.Text($"Rotation: {transform.Rotation}");
+                ImGui.Text($"Scale: {transform.Scale}");
+
+            }
+            else
+            {
+                ImGui.TextUnformatted("No transform component");
+            }
+        }
+        
         ImGui.End();
     }
 }

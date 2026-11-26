@@ -5,11 +5,13 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5.1" />
     <PackageReference Include="ImGui.NET" Version="1.89.7.1" />
+    <PackageReference Include="NativeFileDialogSharp" Version="0.5.0" />
   </ItemGroup>
 
   <ItemGroup>
