@@ -88,6 +88,9 @@ public sealed class Game1 : Game
 
             System.Console.WriteLine($"[Camera] Режим изменен на: {_cameraFollow.Mode}");
         }
+<<<<<<< HEAD
+        
+=======
 
         // управление зумом
         float zoomSpeed = 1.5f * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -105,6 +108,7 @@ public sealed class Game1 : Game
         if (_camera.Zoom < 0.1f) _camera.Zoom = 0.1f;
         if (_camera.Zoom > 3.0f) _camera.Zoom = 3.0f;
 
+>>>>>>> 0ef3b96e72d576d3924582bcf3aeabf11a1cbed8
         //формула для движения, независимого от частоты кадров
         float speed = 400f * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
